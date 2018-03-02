@@ -1,0 +1,1 @@
+swig -go -intgosize 64 -c++ ctp.swig

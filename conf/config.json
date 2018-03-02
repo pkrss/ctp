@@ -1,0 +1,21 @@
+{
+    "data": {
+        "path": "../data/ctp"
+    },
+    "hq": {
+        "frontAddress": "tcp://218.202.237.33:10012",
+        "isUsingUdp": 0,
+        "isMulticast": 0
+    },
+    "trader": {
+        "frontAddress": "tcp://218.202.237.33:10002"
+    },
+    "user": {
+        "brokerID": "9999",
+        "userID": "065206",
+        "password": "K49fD94nf7A"
+    },
+    "db": {
+        "conn": "host='rm-bp1waaqgdq6929vswo.pg.rds.aliyuncs.com' port=3432 dbname=sx98 user=sx98 password=Kdn4dN97"
+    }
+}

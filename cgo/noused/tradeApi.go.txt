@@ -1,0 +1,901 @@
+package cgo
+
+/*
+#include "h/GoTraderApi.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+*/
+import "C"
+
+import (
+	"log"
+	"sx98/ctp/conf"
+	"sx98/ctp/ctp"
+	"unsafe"
+)
+
+var traderApi *C.struct_MyCThostFtdcTraderApi
+
+///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
+//export GoTraderOnFrontConnected
+func GoTraderOnFrontConnected() {
+	log.Println("GoTraderOnFrontConnected")
+
+	p := AutoPointer{}
+
+	userLoginField := C.struct_CThostFtdcReqUserLoginField{}
+	C.memset(unsafe.Pointer(&userLoginField), 0, C.sizeof_struct_CThostFtdcReqUserLoginField)
+
+	C.strcpy((*C.char)(&userLoginField.BrokerID[0]), p.AddCString(conf.Config.User.BrokerID))
+
+	C.strcpy((*C.char)(&userLoginField.UserID[0]), p.AddCString(conf.Config.User.UserID))
+
+	C.strcpy((*C.char)(&userLoginField.Password[0]), p.AddCString(conf.Config.User.Password))
+
+	requestID++
+	C.CThostFtdcTraderApi_ReqUserLogin(traderApi, &userLoginField, requestID)
+	log.Printf("CThostFtdcTraderApi_ReqUserLogin BrokerID=%s, UserID=%s\n", conf.Config.User.BrokerID, conf.Config.User.UserID)
+
+	p.ReleaseAll()
+}
+
+///当客户端与交易后台通信连接断开时，该方法被调用。当发生这个情况后，API会自动重新连接，客户端可不做处理。
+///@param nReason 错误原因
+///        0x1001 网络读失败
+///        0x1002 网络写失败
+///        0x2001 接收心跳超时
+///        0x2002 发送心跳失败
+///        0x2003 收到错误报文
+//export GoTraderOnFrontDisconnected
+func GoTraderOnFrontDisconnected(nReason C.int) {
+	log.Printf("GoTraderOnFrontDisconnected reason:%d\n", nReason)
+}
+
+///心跳超时警告。当长时间未收到报文时，该方法被调用。
+///@param nTimeLapse 距离上次接收报文的时间
+//export GoTraderOnHeartBeatWarning
+func GoTraderOnHeartBeatWarning(nTimeLapse C.int) {
+	log.Println("GoTraderOnHeartBeatWarning")
+}
+
+///客户端认证响应
+//export GoTraderOnRspAuthenticate
+func GoTraderOnRspAuthenticate(pRspAuthenticateField *C.struct_CThostFtdcRspAuthenticateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspAuthenticate")
+}
+
+///登录请求响应
+//export GoTraderOnRspUserLogin
+func GoTraderOnRspUserLogin(pRspUserLogin *C.struct_CThostFtdcRspUserLoginField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Printf("GoTraderOnRspUserLogin errorId=%d errorMsg=%s\n", int(pRspInfo.ErrorID), gbk2utf8(C.GoString(&pRspInfo.ErrorMsg[0])))
+
+	p := AutoPointer{}
+
+	// var requestData C.struct_CThostFtdcQryExchangeField
+	// C.memset(unsafe.Pointer(&requestData), 0, C.sizeof_struct_CThostFtdcQryExchangeField)
+	// // C.strcpy((*C.char)(&requestData.ExchangeID[0]), p.AddCString("CZCE"))
+	// requestID++
+	// // return GoTraderOnRtnInstrumentStatus
+	// C.CThostFtdcTraderApi_ReqQryExchange(traderApi, &requestData, requestID)
+	// log.Println("CThostFtdcTraderApi_ReqQryExchange")
+
+	var requestInstrumentField C.struct_CThostFtdcQryInstrumentField
+	C.memset(unsafe.Pointer(&requestInstrumentField), 0, C.sizeof_struct_CThostFtdcQryInstrumentField)
+	// C.strcpy((*C.char)(&requestInstrumentField.ExchangeID[0]), p.AddCString("CZCE"))
+	requestID++
+	C.CThostFtdcTraderApi_ReqQryInstrument(traderApi, &requestInstrumentField, requestID)
+	log.Println("CThostFtdcTraderApi_ReqQryInstrument")
+
+	p.ReleaseAll()
+}
+
+///登出请求响应
+//export GoTraderOnRspUserLogout
+func GoTraderOnRspUserLogout(pUserLogout *C.struct_CThostFtdcUserLogoutField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspUserLogout")
+}
+
+///用户口令更新请求响应
+//export GoTraderOnRspUserPasswordUpdate
+func GoTraderOnRspUserPasswordUpdate(pUserPasswordUpdate *C.struct_CThostFtdcUserPasswordUpdateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspUserPasswordUpdate")
+}
+
+///资金账户口令更新请求响应
+//export GoTraderOnRspTradingAccountPasswordUpdate
+func GoTraderOnRspTradingAccountPasswordUpdate(pTradingAccountPasswordUpdate *C.struct_CThostFtdcTradingAccountPasswordUpdateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspTradingAccountPasswordUpdate")
+}
+
+///报单录入请求响应
+//export GoTraderOnRspOrderInsert
+func GoTraderOnRspOrderInsert(pInputOrder *C.struct_CThostFtdcInputOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspOrderInsert")
+}
+
+///预埋单录入请求响应
+//export GoTraderOnRspParkedOrderInsert
+func GoTraderOnRspParkedOrderInsert(pParkedOrder *C.struct_CThostFtdcParkedOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspParkedOrderInsert")
+}
+
+///预埋撤单录入请求响应
+//export GoTraderOnRspParkedOrderAction
+func GoTraderOnRspParkedOrderAction(pParkedOrderAction *C.struct_CThostFtdcParkedOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspParkedOrderAction")
+}
+
+///报单操作请求响应
+//export GoTraderOnRspOrderAction
+func GoTraderOnRspOrderAction(pInputOrderAction *C.struct_CThostFtdcInputOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspOrderAction")
+}
+
+///查询最大报单数量响应
+//export GoTraderOnRspQueryMaxOrderVolume
+func GoTraderOnRspQueryMaxOrderVolume(pQueryMaxOrderVolume *C.struct_CThostFtdcQueryMaxOrderVolumeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQueryMaxOrderVolume")
+}
+
+///投资者结算结果确认响应
+//export GoTraderOnRspSettlementInfoConfirm
+func GoTraderOnRspSettlementInfoConfirm(pSettlementInfoConfirm *C.struct_CThostFtdcSettlementInfoConfirmField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspSettlementInfoConfirm")
+}
+
+///删除预埋单响应
+//export GoTraderOnRspRemoveParkedOrder
+func GoTraderOnRspRemoveParkedOrder(pRemoveParkedOrder *C.struct_CThostFtdcRemoveParkedOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspRemoveParkedOrder")
+}
+
+///删除预埋撤单响应
+//export GoTraderOnRspRemoveParkedOrderAction
+func GoTraderOnRspRemoveParkedOrderAction(pRemoveParkedOrderAction *C.struct_CThostFtdcRemoveParkedOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspRemoveParkedOrderAction")
+}
+
+///执行宣告录入请求响应
+//export GoTraderOnRspExecOrderInsert
+func GoTraderOnRspExecOrderInsert(pInputExecOrder *C.struct_CThostFtdcInputExecOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspExecOrderInsert")
+}
+
+///执行宣告操作请求响应
+//export GoTraderOnRspExecOrderAction
+func GoTraderOnRspExecOrderAction(pInputExecOrderAction *C.struct_CThostFtdcInputExecOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspExecOrderAction")
+}
+
+///询价录入请求响应
+//export GoTraderOnRspForQuoteInsert
+func GoTraderOnRspForQuoteInsert(pInputForQuote *C.struct_CThostFtdcInputForQuoteField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspForQuoteInsert")
+}
+
+///报价录入请求响应
+//export GoTraderOnRspQuoteInsert
+func GoTraderOnRspQuoteInsert(pInputQuote *C.struct_CThostFtdcInputQuoteField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQuoteInsert")
+}
+
+///报价操作请求响应
+//export GoTraderOnRspQuoteAction
+func GoTraderOnRspQuoteAction(pInputQuoteAction *C.struct_CThostFtdcInputQuoteActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQuoteAction")
+}
+
+///批量报单操作请求响应
+//export GoTraderOnRspBatchOrderAction
+func GoTraderOnRspBatchOrderAction(pInputBatchOrderAction *C.struct_CThostFtdcInputBatchOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspBatchOrderAction")
+}
+
+///期权自对冲录入请求响应
+//export GoTraderOnRspOptionSelfCloseInsert
+func GoTraderOnRspOptionSelfCloseInsert(pInputOptionSelfClose *C.struct_CThostFtdcInputOptionSelfCloseField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspOptionSelfCloseInsert")
+}
+
+///期权自对冲操作请求响应
+//export GoTraderOnRspOptionSelfCloseAction
+func GoTraderOnRspOptionSelfCloseAction(pInputOptionSelfCloseAction *C.struct_CThostFtdcInputOptionSelfCloseActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspOptionSelfCloseAction")
+}
+
+///申请组合录入请求响应
+//export GoTraderOnRspCombActionInsert
+func GoTraderOnRspCombActionInsert(pInputCombAction *C.struct_CThostFtdcInputCombActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspCombActionInsert")
+}
+
+///请求查询报单响应
+//export GoTraderOnRspQryOrder
+func GoTraderOnRspQryOrder(pOrder *C.struct_CThostFtdcOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryOrder")
+}
+
+///请求查询成交响应
+//export GoTraderOnRspQryTrade
+func GoTraderOnRspQryTrade(pTrade *C.struct_CThostFtdcTradeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryTrade")
+}
+
+///请求查询投资者持仓响应
+//export GoTraderOnRspQryInvestorPosition
+func GoTraderOnRspQryInvestorPosition(pInvestorPosition *C.struct_CThostFtdcInvestorPositionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInvestorPosition")
+}
+
+///请求查询资金账户响应
+//export GoTraderOnRspQryTradingAccount
+func GoTraderOnRspQryTradingAccount(pTradingAccount *C.struct_CThostFtdcTradingAccountField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryTradingAccount")
+}
+
+///请求查询投资者响应
+//export GoTraderOnRspQryInvestor
+func GoTraderOnRspQryInvestor(pInvestor *C.struct_CThostFtdcInvestorField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInvestor")
+}
+
+///请求查询交易编码响应
+//export GoTraderOnRspQryTradingCode
+func GoTraderOnRspQryTradingCode(pTradingCode *C.struct_CThostFtdcTradingCodeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryTradingCode")
+}
+
+///请求查询合约保证金率响应
+//export GoTraderOnRspQryInstrumentMarginRate
+func GoTraderOnRspQryInstrumentMarginRate(pInstrumentMarginRate *C.struct_CThostFtdcInstrumentMarginRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInstrumentMarginRate")
+}
+
+///请求查询合约手续费率响应
+//export GoTraderOnRspQryInstrumentCommissionRate
+func GoTraderOnRspQryInstrumentCommissionRate(pInstrumentCommissionRate *C.struct_CThostFtdcInstrumentCommissionRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInstrumentCommissionRate")
+}
+
+///请求查询交易所响应
+//export GoTraderOnRspQryExchange
+func GoTraderOnRspQryExchange(pExchange *C.struct_CThostFtdcExchangeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+
+	var r ctp.CThostFtdcExchangeField
+	r.ExchangeID = C.GoString(&pExchange.ExchangeID[0])
+	r.ExchangeName = gbk2utf8(C.GoString(&pExchange.ExchangeName[0]))
+	r.ExchangeProperty = byte(pExchange.ExchangeProperty)
+
+	log.Printf("GoTraderOnRspQryExchange:%v\n", r)
+}
+
+///请求查询产品响应
+//export GoTraderOnRspQryProduct
+func GoTraderOnRspQryProduct(pProduct *C.struct_CThostFtdcProductField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryProduct")
+}
+
+///请求查询合约响应
+//export GoTraderOnRspQryInstrument
+func GoTraderOnRspQryInstrument(pInstrument *C.struct_CThostFtdcInstrumentField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+
+	var r ctp.CThostFtdcInstrumentField
+	r.InstrumentID = C.GoString(&pInstrument.InstrumentID[0])
+	r.ExchangeID = C.GoString(&pInstrument.ExchangeID[0])
+	r.InstrumentName = C.GoString(&pInstrument.InstrumentName[0])
+	r.ExchangeInstID = C.GoString(&pInstrument.ExchangeInstID[0])
+	r.ProductID = C.GoString(&pInstrument.ProductID[0])
+	r.ProductClass = byte(pInstrument.ProductClass)
+	r.DeliveryYear = int(pInstrument.DeliveryYear)
+	r.DeliveryMonth = int(pInstrument.DeliveryMonth)
+	r.MaxMarketOrderVolume = int(pInstrument.MaxMarketOrderVolume)
+	r.MinMarketOrderVolume = int(pInstrument.MinMarketOrderVolume)
+	r.MaxLimitOrderVolume = int(pInstrument.MaxLimitOrderVolume)
+	r.MinLimitOrderVolume = int(pInstrument.MinLimitOrderVolume)
+	r.VolumeMultiple = int(pInstrument.VolumeMultiple)
+	r.PriceTick = float64(pInstrument.PriceTick)
+	r.CreateDate = C.GoString(&pInstrument.CreateDate[0])
+	r.OpenDate = C.GoString(&pInstrument.OpenDate[0])
+	r.ExpireDate = C.GoString(&pInstrument.ExpireDate[0])
+	r.StartDelivDate = C.GoString(&pInstrument.StartDelivDate[0])
+	r.EndDelivDate = C.GoString(&pInstrument.EndDelivDate[0])
+	r.InstLifePhase = byte(pInstrument.InstLifePhase)
+	r.IsTrading = int(pInstrument.IsTrading)
+	r.PositionType = byte(pInstrument.PositionType)
+	r.PositionDateType = byte(pInstrument.PositionDateType)
+	r.LongMarginRatio = float64(pInstrument.LongMarginRatio)
+	r.ShortMarginRatio = float64(pInstrument.ShortMarginRatio)
+	r.MaxMarginSideAlgorithm = byte(pInstrument.MaxMarginSideAlgorithm)
+	r.UnderlyingInstrID = C.GoString(&pInstrument.UnderlyingInstrID[0])
+	r.StrikePrice = float64(pInstrument.StrikePrice)
+	r.OptionsType = byte(pInstrument.OptionsType)
+	r.UnderlyingMultiple = float64(pInstrument.UnderlyingMultiple)
+	r.CombinationType = byte(pInstrument.CombinationType)
+
+	log.Printf("GoTraderOnRspQryInstrument RequestID=%d IsLast=%d %v\n", int(nRequestID), int(bIsLast), r)
+}
+
+///请求查询行情响应
+//export GoTraderOnRspQryDepthMarketData
+func GoTraderOnRspQryDepthMarketData(pDepthMarketData *C.struct_CThostFtdcDepthMarketDataField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+
+	var r ctp.CThostFtdcDepthMarketDataField
+	r.TradingDay = C.GoString(&pDepthMarketData.TradingDay[0])
+	r.InstrumentID = C.GoString(&pDepthMarketData.InstrumentID[0])
+	r.ExchangeID = C.GoString(&pDepthMarketData.ExchangeID[0])
+	r.ExchangeInstID = C.GoString(&pDepthMarketData.ExchangeInstID[0])
+	r.LastPrice = float64(pDepthMarketData.LastPrice)
+	r.PreSettlementPrice = float64(pDepthMarketData.PreSettlementPrice)
+	r.PreClosePrice = float64(pDepthMarketData.PreClosePrice)
+	r.PreOpenInterest = float64(pDepthMarketData.PreOpenInterest)
+	r.OpenPrice = float64(pDepthMarketData.OpenPrice)
+	r.HighestPrice = float64(pDepthMarketData.HighestPrice)
+	r.LowestPrice = float64(pDepthMarketData.LowestPrice)
+	r.Volume = int(pDepthMarketData.Volume)
+	r.Turnover = float64(pDepthMarketData.Turnover)
+	r.OpenInterest = float64(pDepthMarketData.OpenInterest)
+	r.ClosePrice = float64(pDepthMarketData.ClosePrice)
+	r.SettlementPrice = float64(pDepthMarketData.SettlementPrice)
+	r.UpperLimitPrice = float64(pDepthMarketData.UpperLimitPrice)
+	r.LowerLimitPrice = float64(pDepthMarketData.LowerLimitPrice)
+	r.PreDelta = float64(pDepthMarketData.PreDelta)
+	r.CurrDelta = float64(pDepthMarketData.CurrDelta)
+	r.UpdateTime = C.GoString(&pDepthMarketData.UpdateTime[0])
+	r.UpdateMillisec = int(pDepthMarketData.UpdateMillisec)
+	r.BidPrice1 = float64(pDepthMarketData.BidPrice1)
+	r.BidVolume1 = int(pDepthMarketData.BidVolume1)
+	r.AskPrice1 = float64(pDepthMarketData.AskPrice1)
+	r.AskVolume1 = int(pDepthMarketData.AskVolume1)
+	r.BidPrice2 = float64(pDepthMarketData.BidPrice2)
+	r.AskVolume2 = int(pDepthMarketData.AskVolume2)
+	r.BidPrice3 = float64(pDepthMarketData.BidPrice3)
+	r.AskVolume3 = int(pDepthMarketData.AskVolume3)
+	r.BidPrice4 = float64(pDepthMarketData.BidPrice4)
+	r.AskVolume4 = int(pDepthMarketData.AskVolume4)
+	r.BidPrice5 = float64(pDepthMarketData.BidPrice5)
+	r.AskVolume5 = int(pDepthMarketData.AskVolume5)
+	r.AveragePrice = float64(pDepthMarketData.AveragePrice)
+	r.ActionDay = C.GoString(&pDepthMarketData.ActionDay[0])
+
+	log.Printf("GOOnRtnDepthMarketData:%v\n", r)
+}
+
+///请求查询投资者结算结果响应
+//export GoTraderOnRspQrySettlementInfo
+func GoTraderOnRspQrySettlementInfo(pSettlementInfo *C.struct_CThostFtdcSettlementInfoField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQrySettlementInfo")
+}
+
+///请求查询转帐银行响应
+//export GoTraderOnRspQryTransferBank
+func GoTraderOnRspQryTransferBank(pTransferBank *C.struct_CThostFtdcTransferBankField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryTransferBank")
+}
+
+///请求查询投资者持仓明细响应
+//export GoTraderOnRspQryInvestorPositionDetail
+func GoTraderOnRspQryInvestorPositionDetail(pInvestorPositionDetail *C.struct_CThostFtdcInvestorPositionDetailField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInvestorPositionDetail")
+}
+
+///请求查询客户通知响应
+//export GoTraderOnRspQryNotice
+func GoTraderOnRspQryNotice(pNotice *C.struct_CThostFtdcNoticeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryNotice")
+}
+
+///请求查询结算信息确认响应
+//export GoTraderOnRspQrySettlementInfoConfirm
+func GoTraderOnRspQrySettlementInfoConfirm(pSettlementInfoConfirm *C.struct_CThostFtdcSettlementInfoConfirmField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQrySettlementInfoConfirm")
+}
+
+///请求查询投资者持仓明细响应
+//export GoTraderOnRspQryInvestorPositionCombineDetail
+func GoTraderOnRspQryInvestorPositionCombineDetail(pInvestorPositionCombineDetail *C.struct_CThostFtdcInvestorPositionCombineDetailField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInvestorPositionCombineDetail")
+}
+
+///查询保证金监管系统经纪公司资金账户密钥响应
+//export GoTraderOnRspQryCFMMCTradingAccountKey
+func GoTraderOnRspQryCFMMCTradingAccountKey(pCFMMCTradingAccountKey *C.struct_CThostFtdcCFMMCTradingAccountKeyField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryCFMMCTradingAccountKey")
+}
+
+///请求查询仓单折抵信息响应
+//export GoTraderOnRspQryEWarrantOffset
+func GoTraderOnRspQryEWarrantOffset(pEWarrantOffset *C.struct_CThostFtdcEWarrantOffsetField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryEWarrantOffset")
+}
+
+///请求查询投资者品种/跨品种保证金响应
+//export GoTraderOnRspQryInvestorProductGroupMargin
+func GoTraderOnRspQryInvestorProductGroupMargin(pInvestorProductGroupMargin *C.struct_CThostFtdcInvestorProductGroupMarginField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInvestorProductGroupMargin")
+}
+
+///请求查询交易所保证金率响应
+//export GoTraderOnRspQryExchangeMarginRate
+func GoTraderOnRspQryExchangeMarginRate(pExchangeMarginRate *C.struct_CThostFtdcExchangeMarginRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryExchangeMarginRate")
+}
+
+///请求查询交易所调整保证金率响应
+//export GoTraderOnRspQryExchangeMarginRateAdjust
+func GoTraderOnRspQryExchangeMarginRateAdjust(pExchangeMarginRateAdjust *C.struct_CThostFtdcExchangeMarginRateAdjustField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryExchangeMarginRateAdjust")
+}
+
+///请求查询汇率响应
+//export GoTraderOnRspQryExchangeRate
+func GoTraderOnRspQryExchangeRate(pExchangeRate *C.struct_CThostFtdcExchangeRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryExchangeRate")
+}
+
+///请求查询二级代理操作员银期权限响应
+//export GoTraderOnRspQrySecAgentACIDMap
+func GoTraderOnRspQrySecAgentACIDMap(pSecAgentACIDMap *C.struct_CThostFtdcSecAgentACIDMapField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQrySecAgentACIDMap")
+}
+
+///请求查询产品报价汇率
+//export GoTraderOnRspQryProductExchRate
+func GoTraderOnRspQryProductExchRate(pProductExchRate *C.struct_CThostFtdcProductExchRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryProductExchRate")
+}
+
+///请求查询产品组
+//export GoTraderOnRspQryProductGroup
+func GoTraderOnRspQryProductGroup(pProductGroup *C.struct_CThostFtdcProductGroupField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryProductGroup")
+}
+
+///请求查询做市商合约手续费率响应
+//export GoTraderOnRspQryMMInstrumentCommissionRate
+func GoTraderOnRspQryMMInstrumentCommissionRate(pMMInstrumentCommissionRate *C.struct_CThostFtdcMMInstrumentCommissionRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryMMInstrumentCommissionRate")
+}
+
+///请求查询做市商期权合约手续费响应
+//export GoTraderOnRspQryMMOptionInstrCommRate
+func GoTraderOnRspQryMMOptionInstrCommRate(pMMOptionInstrCommRate *C.struct_CThostFtdcMMOptionInstrCommRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryMMOptionInstrCommRate")
+}
+
+///请求查询报单手续费响应
+//export GoTraderOnRspQryInstrumentOrderCommRate
+func GoTraderOnRspQryInstrumentOrderCommRate(pInstrumentOrderCommRate *C.struct_CThostFtdcInstrumentOrderCommRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInstrumentOrderCommRate")
+}
+
+///请求查询资金账户响应
+//export GoTraderOnRspQrySecAgentTradingAccount
+func GoTraderOnRspQrySecAgentTradingAccount(pTradingAccount *C.struct_CThostFtdcTradingAccountField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQrySecAgentTradingAccount")
+}
+
+///请求查询二级代理商资金校验模式响应
+//export GoTraderOnRspQrySecAgentCheckMode
+func GoTraderOnRspQrySecAgentCheckMode(pSecAgentCheckMode *C.struct_CThostFtdcSecAgentCheckModeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQrySecAgentCheckMode")
+}
+
+///请求查询期权交易成本响应
+//export GoTraderOnRspQryOptionInstrTradeCost
+func GoTraderOnRspQryOptionInstrTradeCost(pOptionInstrTradeCost *C.struct_CThostFtdcOptionInstrTradeCostField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryOptionInstrTradeCost")
+}
+
+///请求查询期权合约手续费响应
+//export GoTraderOnRspQryOptionInstrCommRate
+func GoTraderOnRspQryOptionInstrCommRate(pOptionInstrCommRate *C.struct_CThostFtdcOptionInstrCommRateField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryOptionInstrCommRate")
+}
+
+///请求查询执行宣告响应
+//export GoTraderOnRspQryExecOrder
+func GoTraderOnRspQryExecOrder(pExecOrder *C.struct_CThostFtdcExecOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryExecOrder")
+}
+
+///请求查询询价响应
+//export GoTraderOnRspQryForQuote
+func GoTraderOnRspQryForQuote(pForQuote *C.struct_CThostFtdcForQuoteField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryForQuote")
+}
+
+///请求查询报价响应
+//export GoTraderOnRspQryQuote
+func GoTraderOnRspQryQuote(pQuote *C.struct_CThostFtdcQuoteField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryQuote")
+}
+
+///请求查询投资单元响应
+//export GoTraderOnRspQryInvestUnit
+func GoTraderOnRspQryInvestUnit(pInvestUnit *C.struct_CThostFtdcInvestUnitField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryInvestUnit")
+}
+
+///请求查询组合合约安全系数响应
+//export GoTraderOnRspQryCombInstrumentGuard
+func GoTraderOnRspQryCombInstrumentGuard(pCombInstrumentGuard *C.struct_CThostFtdcCombInstrumentGuardField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryCombInstrumentGuard")
+}
+
+///请求查询申请组合响应
+//export GoTraderOnRspQryCombAction
+func GoTraderOnRspQryCombAction(pCombAction *C.struct_CThostFtdcCombActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryCombAction")
+}
+
+///请求查询转帐流水响应
+//export GoTraderOnRspQryTransferSerial
+func GoTraderOnRspQryTransferSerial(pTransferSerial *C.struct_CThostFtdcTransferSerialField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryTransferSerial")
+}
+
+///请求查询银期签约关系响应
+//export GoTraderOnRspQryAccountregister
+func GoTraderOnRspQryAccountregister(pAccountregister *C.struct_CThostFtdcAccountregisterField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryAccountregister")
+}
+
+///错误应答
+//export GoTraderOnRspError
+func GoTraderOnRspError(pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Printf("GoTraderOnRspError nRequestID=%d bIsLast=%d errorId=%d errorMsg=%s\n", int(nRequestID), int(bIsLast), int(pRspInfo.ErrorID), gbk2utf8(C.GoString(&pRspInfo.ErrorMsg[0])))
+}
+
+///报单通知
+//export GoTraderOnRtnOrder
+func GoTraderOnRtnOrder(pOrder *C.struct_CThostFtdcOrderField) {
+	log.Println("GoTraderOnRtnOrder")
+}
+
+///成交通知
+//export GoTraderOnRtnTrade
+func GoTraderOnRtnTrade(pTrade *C.struct_CThostFtdcTradeField) {
+	log.Println("GoTraderOnRtnTrade")
+}
+
+///报单录入错误回报
+//export GoTraderOnErrRtnOrderInsert
+func GoTraderOnErrRtnOrderInsert(pInputOrder *C.struct_CThostFtdcInputOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnOrderInsert")
+}
+
+///报单操作错误回报
+//export GoTraderOnErrRtnOrderAction
+func GoTraderOnErrRtnOrderAction(pOrderAction *C.struct_CThostFtdcOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnOrderAction")
+}
+
+///合约交易状态通知
+//export GoTraderOnRtnInstrumentStatus
+func GoTraderOnRtnInstrumentStatus(pInstrumentStatus *C.struct_CThostFtdcInstrumentStatusField) {
+	var r ctp.CThostFtdcInstrumentStatusField
+	r.ExchangeID = C.GoString(&pInstrumentStatus.ExchangeID[0])
+	r.ExchangeInstID = C.GoString(&pInstrumentStatus.ExchangeInstID[0])
+	r.SettlementGroupID = C.GoString(&pInstrumentStatus.SettlementGroupID[0])
+	r.InstrumentID = C.GoString(&pInstrumentStatus.InstrumentID[0])
+	r.InstrumentStatus = byte(pInstrumentStatus.InstrumentStatus)
+	r.TradingSegmentSN = int(pInstrumentStatus.TradingSegmentSN)
+	r.EnterTime = C.GoString(&pInstrumentStatus.EnterTime[0])
+	r.EnterReason = byte(pInstrumentStatus.EnterReason)
+
+	log.Printf("GoTraderOnRtnInstrumentStatus:%v\n", r)
+}
+
+///交易所公告通知
+//export GoTraderOnRtnBulletin
+func GoTraderOnRtnBulletin(pBulletin *C.struct_CThostFtdcBulletinField) {
+	log.Println("GoTraderOnRtnBulletin")
+}
+
+///交易通知
+//export GoTraderOnRtnTradingNotice
+func GoTraderOnRtnTradingNotice(pTradingNoticeInfo *C.struct_CThostFtdcTradingNoticeInfoField) {
+	log.Println("GoTraderOnRtnTradingNotice")
+}
+
+///提示条件单校验错误
+//export GoTraderOnRtnErrorConditionalOrder
+func GoTraderOnRtnErrorConditionalOrder(pErrorConditionalOrder *C.struct_CThostFtdcErrorConditionalOrderField) {
+	log.Println("GoTraderOnRtnErrorConditionalOrder")
+}
+
+///执行宣告通知
+//export GoTraderOnRtnExecOrder
+func GoTraderOnRtnExecOrder(pExecOrder *C.struct_CThostFtdcExecOrderField) {
+	log.Println("GoTraderOnRtnExecOrder")
+}
+
+///执行宣告录入错误回报
+//export GoTraderOnErrRtnExecOrderInsert
+func GoTraderOnErrRtnExecOrderInsert(pInputExecOrder *C.struct_CThostFtdcInputExecOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnExecOrderInsert")
+}
+
+///执行宣告操作错误回报
+//export GoTraderOnErrRtnExecOrderAction
+func GoTraderOnErrRtnExecOrderAction(pExecOrderAction *C.struct_CThostFtdcExecOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnExecOrderAction")
+}
+
+///询价录入错误回报
+//export GoTraderOnErrRtnForQuoteInsert
+func GoTraderOnErrRtnForQuoteInsert(pInputForQuote *C.struct_CThostFtdcInputForQuoteField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnForQuoteInsert")
+}
+
+///报价通知
+//export GoTraderOnRtnQuote
+func GoTraderOnRtnQuote(pQuote *C.struct_CThostFtdcQuoteField) {
+	log.Println("GoTraderOnRtnQuote")
+}
+
+///报价录入错误回报
+//export GoTraderOnErrRtnQuoteInsert
+func GoTraderOnErrRtnQuoteInsert(pInputQuote *C.struct_CThostFtdcInputQuoteField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnQuoteInsert")
+}
+
+///报价操作错误回报
+//export GoTraderOnErrRtnQuoteAction
+func GoTraderOnErrRtnQuoteAction(pQuoteAction *C.struct_CThostFtdcQuoteActionField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnQuoteAction")
+}
+
+///询价通知
+//export GoTraderOnRtnForQuoteRsp
+func GoTraderOnRtnForQuoteRsp(pForQuoteRsp *C.struct_CThostFtdcForQuoteRspField) {
+	log.Println("GoTraderOnRtnForQuoteRsp")
+}
+
+///保证金监控中心用户令牌
+//export GoTraderOnRtnCFMMCTradingAccountToken
+func GoTraderOnRtnCFMMCTradingAccountToken(pCFMMCTradingAccountToken *C.struct_CThostFtdcCFMMCTradingAccountTokenField) {
+	log.Println("GoTraderOnRtnCFMMCTradingAccountToken")
+}
+
+///批量报单操作错误回报
+//export GoTraderOnErrRtnBatchOrderAction
+func GoTraderOnErrRtnBatchOrderAction(pBatchOrderAction *C.struct_CThostFtdcBatchOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnBatchOrderAction")
+}
+
+///期权自对冲通知
+//export GoTraderOnRtnOptionSelfClose
+func GoTraderOnRtnOptionSelfClose(pOptionSelfClose *C.struct_CThostFtdcOptionSelfCloseField) {
+	log.Println("GoTraderOnRtnOptionSelfClose")
+}
+
+///期权自对冲录入错误回报
+//export GoTraderOnErrRtnOptionSelfCloseInsert
+func GoTraderOnErrRtnOptionSelfCloseInsert(pInputOptionSelfClose *C.struct_CThostFtdcInputOptionSelfCloseField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnOptionSelfCloseInsert")
+}
+
+///期权自对冲操作错误回报
+//export GoTraderOnErrRtnOptionSelfCloseAction
+func GoTraderOnErrRtnOptionSelfCloseAction(pOptionSelfCloseAction *C.struct_CThostFtdcOptionSelfCloseActionField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnOptionSelfCloseAction")
+}
+
+///申请组合通知
+//export GoTraderOnRtnCombAction
+func GoTraderOnRtnCombAction(pCombAction *C.struct_CThostFtdcCombActionField) {
+	log.Println("GoTraderOnRtnCombAction")
+}
+
+///申请组合录入错误回报
+//export GoTraderOnErrRtnCombActionInsert
+func GoTraderOnErrRtnCombActionInsert(pInputCombAction *C.struct_CThostFtdcInputCombActionField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnCombActionInsert")
+}
+
+///请求查询签约银行响应
+//export GoTraderOnRspQryContractBank
+func GoTraderOnRspQryContractBank(pContractBank *C.struct_CThostFtdcContractBankField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryContractBank")
+}
+
+///请求查询预埋单响应
+//export GoTraderOnRspQryParkedOrder
+func GoTraderOnRspQryParkedOrder(pParkedOrder *C.struct_CThostFtdcParkedOrderField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryParkedOrder")
+}
+
+///请求查询预埋撤单响应
+//export GoTraderOnRspQryParkedOrderAction
+func GoTraderOnRspQryParkedOrderAction(pParkedOrderAction *C.struct_CThostFtdcParkedOrderActionField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryParkedOrderAction")
+}
+
+///请求查询交易通知响应
+//export GoTraderOnRspQryTradingNotice
+func GoTraderOnRspQryTradingNotice(pTradingNotice *C.struct_CThostFtdcTradingNoticeField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryTradingNotice")
+}
+
+///请求查询经纪公司交易参数响应
+//export GoTraderOnRspQryBrokerTradingParams
+func GoTraderOnRspQryBrokerTradingParams(pBrokerTradingParams *C.struct_CThostFtdcBrokerTradingParamsField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryBrokerTradingParams")
+}
+
+///请求查询经纪公司交易算法响应
+//export GoTraderOnRspQryBrokerTradingAlgos
+func GoTraderOnRspQryBrokerTradingAlgos(pBrokerTradingAlgos *C.struct_CThostFtdcBrokerTradingAlgosField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQryBrokerTradingAlgos")
+}
+
+///请求查询监控中心用户令牌
+//export GoTraderOnRspQueryCFMMCTradingAccountToken
+func GoTraderOnRspQueryCFMMCTradingAccountToken(pQueryCFMMCTradingAccountToken *C.struct_CThostFtdcQueryCFMMCTradingAccountTokenField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQueryCFMMCTradingAccountToken")
+}
+
+///银行发起银行资金转期货通知
+//export GoTraderOnRtnFromBankToFutureByBank
+func GoTraderOnRtnFromBankToFutureByBank(pRspTransfer *C.struct_CThostFtdcRspTransferField) {
+	log.Println("GoTraderOnRtnFromBankToFutureByBank")
+}
+
+///银行发起期货资金转银行通知
+//export GoTraderOnRtnFromFutureToBankByBank
+func GoTraderOnRtnFromFutureToBankByBank(pRspTransfer *C.struct_CThostFtdcRspTransferField) {
+	log.Println("GoTraderOnRtnFromFutureToBankByBank")
+}
+
+///银行发起冲正银行转期货通知
+//export GoTraderOnRtnRepealFromBankToFutureByBank
+func GoTraderOnRtnRepealFromBankToFutureByBank(pRspRepeal *C.struct_CThostFtdcRspRepealField) {
+	log.Println("GoTraderOnRtnRepealFromBankToFutureByBank")
+}
+
+///银行发起冲正期货转银行通知
+//export GoTraderOnRtnRepealFromFutureToBankByBank
+func GoTraderOnRtnRepealFromFutureToBankByBank(pRspRepeal *C.struct_CThostFtdcRspRepealField) {
+	log.Println("GoTraderOnRtnRepealFromFutureToBankByBank")
+}
+
+///期货发起银行资金转期货通知
+//export GoTraderOnRtnFromBankToFutureByFuture
+func GoTraderOnRtnFromBankToFutureByFuture(pRspTransfer *C.struct_CThostFtdcRspTransferField) {
+	log.Println("GoTraderOnRtnFromBankToFutureByFuture")
+}
+
+///期货发起期货资金转银行通知
+//export GoTraderOnRtnFromFutureToBankByFuture
+func GoTraderOnRtnFromFutureToBankByFuture(pRspTransfer *C.struct_CThostFtdcRspTransferField) {
+	log.Println("GoTraderOnRtnFromFutureToBankByFuture")
+}
+
+///系统运行时期货端手工发起冲正银行转期货请求，银行处理完毕后报盘发回的通知
+//export GoTraderOnRtnRepealFromBankToFutureByFutureManual
+func GoTraderOnRtnRepealFromBankToFutureByFutureManual(pRspRepeal *C.struct_CThostFtdcRspRepealField) {
+	log.Println("GoTraderOnRtnRepealFromBankToFutureByFutureManual")
+}
+
+///系统运行时期货端手工发起冲正期货转银行请求，银行处理完毕后报盘发回的通知
+//export GoTraderOnRtnRepealFromFutureToBankByFutureManual
+func GoTraderOnRtnRepealFromFutureToBankByFutureManual(pRspRepeal *C.struct_CThostFtdcRspRepealField) {
+	log.Println("GoTraderOnRtnRepealFromFutureToBankByFutureManual")
+}
+
+///期货发起查询银行余额通知
+//export GoTraderOnRtnQueryBankBalanceByFuture
+func GoTraderOnRtnQueryBankBalanceByFuture(pNotifyQueryAccount *C.struct_CThostFtdcNotifyQueryAccountField) {
+	log.Println("GoTraderOnRtnQueryBankBalanceByFuture")
+}
+
+///期货发起银行资金转期货错误回报
+//export GoTraderOnErrRtnBankToFutureByFuture
+func GoTraderOnErrRtnBankToFutureByFuture(pReqTransfer *C.struct_CThostFtdcReqTransferField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnBankToFutureByFuture")
+}
+
+///期货发起期货资金转银行错误回报
+//export GoTraderOnErrRtnFutureToBankByFuture
+func GoTraderOnErrRtnFutureToBankByFuture(pReqTransfer *C.struct_CThostFtdcReqTransferField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnFutureToBankByFuture")
+}
+
+///系统运行时期货端手工发起冲正银行转期货错误回报
+//export GoTraderOnErrRtnRepealBankToFutureByFutureManual
+func GoTraderOnErrRtnRepealBankToFutureByFutureManual(pReqRepeal *C.struct_CThostFtdcReqRepealField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnRepealBankToFutureByFutureManual")
+}
+
+///系统运行时期货端手工发起冲正期货转银行错误回报
+//export GoTraderOnErrRtnRepealFutureToBankByFutureManual
+func GoTraderOnErrRtnRepealFutureToBankByFutureManual(pReqRepeal *C.struct_CThostFtdcReqRepealField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnRepealFutureToBankByFutureManual")
+}
+
+///期货发起查询银行余额错误回报
+//export GoTraderOnErrRtnQueryBankBalanceByFuture
+func GoTraderOnErrRtnQueryBankBalanceByFuture(pReqQueryAccount *C.struct_CThostFtdcReqQueryAccountField, pRspInfo *C.struct_CThostFtdcRspInfoField) {
+	log.Println("GoTraderOnErrRtnQueryBankBalanceByFuture")
+}
+
+///期货发起冲正银行转期货请求，银行处理完毕后报盘发回的通知
+//export GoTraderOnRtnRepealFromBankToFutureByFuture
+func GoTraderOnRtnRepealFromBankToFutureByFuture(pRspRepeal *C.struct_CThostFtdcRspRepealField) {
+	log.Println("GoTraderOnRtnRepealFromBankToFutureByFuture")
+}
+
+///期货发起冲正期货转银行请求，银行处理完毕后报盘发回的通知
+//export GoTraderOnRtnRepealFromFutureToBankByFuture
+func GoTraderOnRtnRepealFromFutureToBankByFuture(pRspRepeal *C.struct_CThostFtdcRspRepealField) {
+	log.Println("GoTraderOnRtnRepealFromFutureToBankByFuture")
+}
+
+///期货发起银行资金转期货应答
+//export GoTraderOnRspFromBankToFutureByFuture
+func GoTraderOnRspFromBankToFutureByFuture(pReqTransfer *C.struct_CThostFtdcReqTransferField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspFromBankToFutureByFuture")
+}
+
+///期货发起期货资金转银行应答
+//export GoTraderOnRspFromFutureToBankByFuture
+func GoTraderOnRspFromFutureToBankByFuture(pReqTransfer *C.struct_CThostFtdcReqTransferField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspFromFutureToBankByFuture")
+}
+
+///期货发起查询银行余额应答
+//export GoTraderOnRspQueryBankAccountMoneyByFuture
+func GoTraderOnRspQueryBankAccountMoneyByFuture(pReqQueryAccount *C.struct_CThostFtdcReqQueryAccountField, pRspInfo *C.struct_CThostFtdcRspInfoField, nRequestID C.int, bIsLast C.int) {
+	log.Println("GoTraderOnRspQueryBankAccountMoneyByFuture")
+}
+
+///银行发起银期开户通知
+//export GoTraderOnRtnOpenAccountByBank
+func GoTraderOnRtnOpenAccountByBank(pOpenAccount *C.struct_CThostFtdcOpenAccountField) {
+	log.Println("GoTraderOnRtnOpenAccountByBank")
+}
+
+///银行发起银期销户通知
+//export GoTraderOnRtnCancelAccountByBank
+func GoTraderOnRtnCancelAccountByBank(pCancelAccount *C.struct_CThostFtdcCancelAccountField) {
+	log.Println("GoTraderOnRtnCancelAccountByBank")
+}
+
+///银行发起变更银行账号通知
+//export GoTraderOnRtnChangeAccountByBank
+func GoTraderOnRtnChangeAccountByBank(pChangeAccount *C.struct_CThostFtdcChangeAccountField) {
+	log.Println("GoTraderOnRtnChangeAccountByBank")
+}
+
+func CreateFtdcTraderApi() *C.struct_MyCThostFtdcTraderApi {
+
+	pszFrontAddress := conf.Config.Trader.FrontAddress
+	pszFlowPath := conf.Config.Data.Path
+
+	p := AutoPointer{}
+
+	log.Printf("CThostFtdcTraderApi_CreateFtdcTraderApi(pszFlowPath=%s)\n", pszFlowPath)
+	traderApi = C.CThostFtdcTraderApi_CreateFtdcTraderApi(p.AddCString(pszFlowPath))
+
+	log.Printf("CreateTraderSpiResponse\n")
+	spiResponse := C.CreateTraderSpiResponse()
+
+	log.Printf("CThostFtdcMdApi_RegisterSpi\n")
+	C.CThostFtdcTraderApi_RegisterSpi(traderApi, spiResponse)
+
+	log.Printf("CThostFtdcTraderApi_RegisterFront(FrontAddress=%s)\n", pszFrontAddress)
+	C.CThostFtdcTraderApi_RegisterFront(traderApi, p.AddCString(pszFrontAddress))
+
+	log.Printf("CThostFtdcTraderApi_Init()\n")
+	C.CThostFtdcTraderApi_Init(traderApi)
+
+	// log.Printf("CThostFtdcMdApi_Join()\n")
+	// C.CThostFtdcMdApi_Join(mdapi)
+
+	p.ReleaseAll()
+
+	return traderApi
+}

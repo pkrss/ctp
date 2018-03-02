@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+/cgo/cpp/x64
+/cgo/cpp/.vs
+/cgo/cpp/Debug
