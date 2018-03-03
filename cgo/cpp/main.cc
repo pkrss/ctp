@@ -1,4 +1,4 @@
-// #include "../build.cc"
+ï»¿// #include "../build.cc"
 #include "../impl/ext.h"
 #include "../impl/ctpApiMd.h"
 #include "../impl/ctpApiMdUser.h"
@@ -76,15 +76,15 @@ void main() {
 		apiMdUser = (CtpApiMdUser*)ctpMdInit(mdApi);
 
 		auto p = [](struct CThostFtdcDepthMarketDataField* pDepthMarketData) {
-			// ´òÓ¡ÐÐÇé£¬×Ö¶Î½Ï¶à£¬½ØÈ¡²¿·Ö
-			std::cout << "=====»ñµÃÉî¶ÈÐÐÇé=====" << std::endl;
-			std::cout << "½»Ò×ÈÕ£º " << pDepthMarketData->TradingDay << std::endl;
-			std::cout << "½»Ò×Ëù´úÂë£º " << pDepthMarketData->ExchangeID << std::endl;
-			std::cout << "ºÏÔ¼´úÂë£º " << pDepthMarketData->InstrumentID << std::endl;
-			std::cout << "ºÏÔ¼ÔÚ½»Ò×ËùµÄ´úÂë£º " << pDepthMarketData->ExchangeInstID << std::endl;
-			std::cout << "×îÐÂ¼Û£º " << pDepthMarketData->LastPrice << std::endl;
-			std::cout << "ÊýÁ¿£º " << pDepthMarketData->Volume << std::endl;
-			std::cout << "¸üÐÂÊ±¼ä£º " << pDepthMarketData->UpdateTime << std::endl;
+			// æ‰“å°è¡Œæƒ…ï¼Œå­—æ®µè¾ƒå¤šï¼Œæˆªå–éƒ¨åˆ†
+			std::cout << "=====èŽ·å¾—æ·±åº¦è¡Œæƒ…=====" << std::endl;
+			std::cout << "äº¤æ˜“æ—¥ï¼š " << pDepthMarketData->TradingDay << std::endl;
+			std::cout << "äº¤æ˜“æ‰€ä»£ç ï¼š " << pDepthMarketData->ExchangeID << std::endl;
+			std::cout << "åˆçº¦ä»£ç ï¼š " << pDepthMarketData->InstrumentID << std::endl;
+			std::cout << "åˆçº¦åœ¨äº¤æ˜“æ‰€çš„ä»£ç ï¼š " << pDepthMarketData->ExchangeInstID << std::endl;
+			std::cout << "æœ€æ–°ä»·ï¼š " << pDepthMarketData->LastPrice << std::endl;
+			std::cout << "æ•°é‡ï¼š " << pDepthMarketData->Volume << std::endl;
+			std::cout << "æ›´æ–°æ—¶é—´ï¼š " << pDepthMarketData->UpdateTime << std::endl;
 		};
 		ctpMdSetCallback_RtnDepthMarketData(apiMdUser, (void(*)(struct CThostFtdcDepthMarketDataField*))(p));
 

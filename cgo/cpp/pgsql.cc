@@ -6,7 +6,7 @@
 
 #include <stdio.h>  
 #include <stdlib.h>  
-#include <libpq-fe.h>  
+#include "third/libpq/h/libpq-fe.h" 
 
 
 static PgSql* pgsql = 0;

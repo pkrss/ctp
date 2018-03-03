@@ -69,11 +69,11 @@ LDFLAGS   = -L../third/ctp/tradeapi_linux64/ -lthostmduserapi -lthosttraderapi
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
-SRCDIRS   =
+SRCDIRS   = . ../impl
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
-PROGRAM   = ctpdll.so
+PROGRAM   = out.o
 
 ## Implicit Section: change the following only when necessary.
 ##==========================================================================
@@ -110,7 +110,7 @@ CTAGSFLAGS =
 
 ## Stable Section: usually no need to be changed. But you can add more.
 ##==========================================================================
-SHELL   = /bin/sh
+SHELL   = sh ## /bin/sh
 EMPTY   =
 SPACE   = $(EMPTY) $(EMPTY)
 ifeq ($(PROGRAM),)
@@ -228,11 +228,11 @@ else                            # C++ program
 	@echo Type ./$@ to execute the program.
 endif
 
-ifndef NODEP
-ifneq ($(DEPS),)
-  sinclude $(DEPS)
-endif
-endif
+# ifndef NODEP
+# ifneq ($(DEPS),)
+#   sinclude $(DEPS)
+# endif
+# endif
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
