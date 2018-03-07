@@ -15,7 +15,6 @@ void ctpSave::SetSaveDataFun(SaveDataFun saveDataFun) {
 }
 
 void ctpSave::saveExchanges(CThostFtdcExchangeField** exchanges, int count) {
-	const char* dbKey = "futuresExchanges";
 
 	if (!this->saveDataFun || !exchanges || !count)
 		return;
@@ -64,7 +63,7 @@ void ctpSave::saveInstruments(CThostFtdcInstrumentField** instaruments, int coun
 
 		json j = json::array();
 
-		for (std::list<CThostFtdcInstrumentField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b != e; ++b) {
+		for (std::list<CThostFtdcInstrumentField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b2 != e2; ++b2) {
 			CThostFtdcInstrumentField* item = *b2;
 
 
@@ -139,7 +138,7 @@ void ctpSave::saveInstrumentsStatus(CThostFtdcInstrumentStatusField** instarumen
 
 		json j = json::array();
 
-		for (std::list<CThostFtdcInstrumentStatusField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b != e; ++b) {
+		for (std::list<CThostFtdcInstrumentStatusField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b2 != e2; ++b2) {
 			CThostFtdcInstrumentStatusField* item = *b2;
 			
 			json r = json::object();

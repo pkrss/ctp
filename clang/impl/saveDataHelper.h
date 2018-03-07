@@ -21,7 +21,7 @@ class CSaveDataHelper
 		  *r = *pItem;
 
 		  dataMutex.lock();
-		  dataList.push_back(DATALIST::value_type(r));
+		  dataList.push_back(typename DATALIST::value_type(r));
 		  dataMutex.unlock();
 	  }
 	  void saveAll(){

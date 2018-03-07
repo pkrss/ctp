@@ -21,7 +21,7 @@ void* so_open(const char* so) {
 
 	if (!a)
 	{
-		printf("Fail to LoadLibrary(%s) = 0x%x\n", so, GetLastError());
+		printf("Fail to LoadLibrary(%s) = 0x%x\n", so, (unsigned int)GetLastError());
 		return 0;
 	}
 	return a;
@@ -30,7 +30,7 @@ void* so_open(const char* so) {
 void* so_find(void* so, const char* funcName) {
 	if (!so || !funcName || !funcName[0])
 		return 0;
-	return GetProcAddress((HMODULE)so, funcName);
+	return (void*)GetProcAddress((HMODULE)so, funcName);
 }
 
 void so_free(void* so) {

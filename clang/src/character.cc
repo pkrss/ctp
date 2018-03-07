@@ -79,7 +79,7 @@ void gb_to_utf8(char* src, char* dst, int len)
 
 #include "third/iconv/iconv.h"
 
-void codeConvert(char * from, char * to, char * src, char * dst, size_t dstSize) {
+void codeConvert(const char * from, const char * to, char * src, char * dst, size_t dstSize) {
 	size_t sl, dl;
 	sl = strlen(src);
 	dl = dstSize;
