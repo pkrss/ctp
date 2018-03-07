@@ -80,7 +80,7 @@ void PgSql::saveData(const char* name, long id, const char* content) {
 		return;
 	}
 
-	printf("Prepare save data name=%s id=%d ...\n", name, id);
+	printf("Prepare save data name=%s id=%ld ...\n", name, id);
 
 	char sid[32];
 	ltoa(id, sid, 10);
@@ -94,7 +94,7 @@ void PgSql::saveData(const char* name, long id, const char* content) {
 	sqlParams[2] = content;
 	execSql("INSERT INTO myzc_string_record (key_type, key_id, content) VALUES($1, $2, $3)", sqlParams, 3);
 
-	printf("End save data name=%s id=%d ...\n", name, id);
+	printf("End save data name=%s id=%ld ...\n", name, id);
 
 	free(sqlParams);
 }
@@ -121,13 +121,13 @@ bool PgSql::simpleDataExist(const char* type, const char* id) {
 	const char** val = (const char**)malloc(sizeof(const char*) * 2);
 	val[0] = type;
 	val[1] = id;
-	std::auto_ptr<RESULT> res = execSql(sql, val, 2);
+	std::unique_ptr<RESULT> res = execSql(sql, val, 2);
 	free(val);
 	return getLongResult(res);
 }
 
 
-std::auto_ptr<PgSql::RESULT> PgSql::getResultAndCloseConnect(PGresult* res) {
+std::unique_ptr<PgSql::RESULT> PgSql::getResultAndCloseConnect(PGresult* res) {
 	RESULT* ret = 0;
 
 	do {
@@ -165,7 +165,7 @@ std::auto_ptr<PgSql::RESULT> PgSql::getResultAndCloseConnect(PGresult* res) {
 		res = 0;
 	}
 
-	return std::auto_ptr<PgSql::RESULT>(ret);
+	return std::unique_ptr<PgSql::RESULT>(ret);
 }
 
 long PgSql::getLongResultAndCloseConnect(PGresult* res) {
@@ -175,7 +175,7 @@ long PgSql::getLongResultAndCloseConnect(PGresult* res) {
 	return getLongResult(getResultAndCloseConnect(res));
 }
 
-long PgSql::getLongResult(const std::auto_ptr<PgSql::RESULT>& rst) {
+long PgSql::getLongResult(const std::unique_ptr<PgSql::RESULT>& rst) {
 	if (!rst.get() || rst.get()->empty() || rst.get()->front().empty())
 		return -2;
 
@@ -238,9 +238,7 @@ int PgSql::insert(const char* sql, const char*** sqlParams, int sqlParamsRows, i
 	return getLongResultAndCloseConnect(res);
 }
 
-std::auto_ptr<PgSql::RESULT> PgSql::execSql(const char* sql, const char** sqlParams, int sqlParamsCount){
-
-	RESULT* ret = 0;
+std::unique_ptr<PgSql::RESULT> PgSql::execSql(const char* sql, const char** sqlParams, int sqlParamsCount){
 	PGresult    *res = 0;
 
 	bool dbOk = checkConn();

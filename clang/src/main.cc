@@ -11,13 +11,32 @@
 #include "../impl/utils.h"
 #include "ctpSave.h"
 #include <iostream>
+#include <string.h> // strdup
 
-typedef __declspec(dllimport)  CThostFtdcTraderApi*(*FunCreateFtdcTraderApi)(const char *pszFlowPath);
-typedef __declspec(dllimport)  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath, const bool bIsUsingUdp, const bool bIsMulticast);
+#if defined(_WINDOWS)
+#define My_DLLEXP __declspec(dllimport)
+#else
+#define My_DLLEXP 
+#endif
+
+typedef My_DLLEXP  CThostFtdcTraderApi*(*FunCreateFtdcTraderApi)(const char *pszFlowPath);
+typedef My_DLLEXP  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath, const bool bIsUsingUdp, const bool bIsMulticast);
 
 ctpSave* pCtpSaveObj = 0;
 
-void main() {
+void onRcvRtnDepthMarketData(struct CThostFtdcDepthMarketDataField* pDepthMarketData) {
+	// 打印行情，字段较多，截取部分
+	std::cout << "=====获得深度行情=====" << std::endl;
+	std::cout << "交易日： " << pDepthMarketData->TradingDay << std::endl;
+	std::cout << "交易所代码： " << pDepthMarketData->ExchangeID << std::endl;
+	std::cout << "合约代码： " << pDepthMarketData->InstrumentID << std::endl;
+	std::cout << "合约在交易所的代码： " << pDepthMarketData->ExchangeInstID << std::endl;
+	std::cout << "最新价： " << pDepthMarketData->LastPrice << std::endl;
+	std::cout << "数量： " << pDepthMarketData->Volume << std::endl;
+	std::cout << "更新时间： " << pDepthMarketData->UpdateTime << std::endl;
+}
+
+int main() {
 
 	setlocale(LC_ALL, "");
 
@@ -28,7 +47,7 @@ void main() {
 	void* soMd = 0;
 	void* soTrader = 0;
 
-	std::auto_ptr<ctpSave> ctpSaveObj(new ctpSave());
+	std::unique_ptr<ctpSave> ctpSaveObj(new ctpSave());
 	ctpSaveObj->SetSaveDataFun([](const char* name, long id, const char* content) {
 		PgSql::getInstance()->saveData(name, id, content);
 	});
@@ -75,18 +94,7 @@ void main() {
 
 		apiMdUser = (CtpApiMdUser*)ctpMdInit(mdApi);
 
-		auto p = [](struct CThostFtdcDepthMarketDataField* pDepthMarketData) {
-			// 打印行情，字段较多，截取部分
-			std::cout << "=====获得深度行情=====" << std::endl;
-			std::cout << "交易日： " << pDepthMarketData->TradingDay << std::endl;
-			std::cout << "交易所代码： " << pDepthMarketData->ExchangeID << std::endl;
-			std::cout << "合约代码： " << pDepthMarketData->InstrumentID << std::endl;
-			std::cout << "合约在交易所的代码： " << pDepthMarketData->ExchangeInstID << std::endl;
-			std::cout << "最新价： " << pDepthMarketData->LastPrice << std::endl;
-			std::cout << "数量： " << pDepthMarketData->Volume << std::endl;
-			std::cout << "更新时间： " << pDepthMarketData->UpdateTime << std::endl;
-		};
-		ctpMdSetCallback_RtnDepthMarketData(apiMdUser, (void(*)(struct CThostFtdcDepthMarketDataField*))(p));
+		ctpMdSetCallback_RtnDepthMarketData(apiMdUser, (void*)onRcvRtnDepthMarketData);
 
 		ctpMdRegQuoteStk(apiMdUser, "rb1805,IF1806");
 
@@ -183,6 +191,8 @@ void main() {
 
 	PgSql::Destroy();
 	Profile::Destroy();
+
+	return 0;
 }
 
 char* ExtProfileGetString(char* key) {

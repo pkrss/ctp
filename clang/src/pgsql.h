@@ -24,9 +24,9 @@ private:
 
 	int connectDb();
 
-	std::auto_ptr<RESULT> getResultAndCloseConnect(PGresult* res);
+	std::unique_ptr<RESULT> getResultAndCloseConnect(PGresult* res);
 	long getLongResultAndCloseConnect(PGresult* res);
-	long getLongResult(const std::auto_ptr<PgSql::RESULT>& rst);
+	long getLongResult(const std::unique_ptr<PgSql::RESULT>& rst);
 public:
 
 	static PgSql* getInstance();
@@ -42,7 +42,7 @@ public:
 
 	int insert(const char* sql, const char*** sqlParams = 0, int sqlParamsRows = 0, int sqlParamsCount = 0);
 	
-	std::auto_ptr<RESULT> execSql(const char* sql, const char** sqlParams = 0, int sqlParamsCount = 0);
+	std::unique_ptr<RESULT> execSql(const char* sql, const char** sqlParams = 0, int sqlParamsCount = 0);
 };
 
 #endif

@@ -16,9 +16,9 @@ class CTraderHandler : public CThostFtdcTraderSpi
     CtpApiTraderUser* api;
 	const char* tradingDay;
 
-	std::auto_ptr<CSaveDataHelper<CThostFtdcInstrumentField> > saveDataInstrumentHelper;
-	std::auto_ptr<CSaveDataHelper<CThostFtdcExchangeField> > saveDataExchangeHelper;
-	std::auto_ptr<CSaveDataHelper<CThostFtdcInstrumentStatusField> > saveDataInstrumentStatusHelper;
+	std::unique_ptr<CSaveDataHelper<CThostFtdcInstrumentField> > saveDataInstrumentHelper;
+	std::unique_ptr<CSaveDataHelper<CThostFtdcExchangeField> > saveDataExchangeHelper;
+	std::unique_ptr<CSaveDataHelper<CThostFtdcInstrumentStatusField> > saveDataInstrumentStatusHelper;
 
   public:
     CTraderHandler(CThostFtdcTraderApi *traderApi);

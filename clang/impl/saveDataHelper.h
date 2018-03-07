@@ -9,7 +9,7 @@ template<class Ty>
 class CSaveDataHelper
 {
   public:
-	  typedef std::list<std::auto_ptr<Ty> > DATALIST;
+	  typedef std::list<std::unique_ptr<Ty> > DATALIST;
 	  typedef void(*FUNSAVEDATA)(Ty**, int);
 
 	  CSaveDataHelper() {
@@ -42,7 +42,7 @@ class CSaveDataHelper
 		  Ty** datas = (Ty**)malloc(sizeof(Ty*) * cnt);
 
 		  int i = 0;
-		  for (DATALIST::const_iterator b = dataList.begin(), e = dataList.end(); b != e; ++b, ++i) {
+		  for (typename DATALIST::const_iterator b = dataList.begin(), e = dataList.end(); b != e; ++b, ++i) {
 			  datas[i] = b->get();
 		  }
 
