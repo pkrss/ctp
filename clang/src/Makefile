@@ -56,7 +56,7 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -I../third/ctp/ -fpic
+MY_CFLAGS = -I../third/ctp/ -fpic -D_WINDOWS
 
 # The linker options.
 MY_LIBS   = 
@@ -65,7 +65,7 @@ MY_LIBS   =
 CPPFLAGS  = -Wall
 
 # The options used in linking as well as in any direct use of ld.
-LDFLAGS   = -L../third/ctp/tradeapi_linux64/ -lthostmduserapi -lthosttraderapi
+LDFLAGS   = -L. -L../../go/third/ctp/tradeapi64_windows/ -lthostmduserapi -lthosttraderapi -llibpq -liconv
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
@@ -87,8 +87,8 @@ HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
 
 # The pre-processor and compiler options.
 # Users can override those variables from the command line.
-CFLAGS  = -g -O2 -D_WINDOWS
-CXXFLAGS= -g -O2 -D_WINDOWS
+CFLAGS  = -g -O2
+CXXFLAGS= -g -O2
 
 # The C program compiler.
 #CC     = gcc
