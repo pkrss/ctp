@@ -26,14 +26,14 @@ ctpSave* pCtpSaveObj = 0;
 
 void onRcvRtnDepthMarketData(struct CThostFtdcDepthMarketDataField* pDepthMarketData) {
 	// 打印行情，字段较多，截取部分
-	std::cout << "=====获得深度行情=====" << std::endl;
-	std::cout << "交易日： " << pDepthMarketData->TradingDay << std::endl;
-	std::cout << "交易所代码： " << pDepthMarketData->ExchangeID << std::endl;
-	std::cout << "合约代码： " << pDepthMarketData->InstrumentID << std::endl;
-	std::cout << "合约在交易所的代码： " << pDepthMarketData->ExchangeInstID << std::endl;
-	std::cout << "最新价： " << pDepthMarketData->LastPrice << std::endl;
-	std::cout << "数量： " << pDepthMarketData->Volume << std::endl;
-	std::cout << "更新时间： " << pDepthMarketData->UpdateTime << std::endl;
+	std::cout << "=====DepthMarketData=====" << std::endl;
+	std::cout << "TradingDay: " << pDepthMarketData->TradingDay << std::endl;
+	std::cout << "ExchangeID: " << pDepthMarketData->ExchangeID << std::endl;
+	std::cout << "InstrumentID: " << pDepthMarketData->InstrumentID << std::endl;
+	std::cout << "ExchangeInstID: " << pDepthMarketData->ExchangeInstID << std::endl;
+	std::cout << "LastPrice: " << pDepthMarketData->LastPrice << std::endl;
+	std::cout << "Volume: " << pDepthMarketData->Volume << std::endl;
+	std::cout << "UpdateTime: " << pDepthMarketData->UpdateTime << std::endl;
 }
 
 int main() {
@@ -96,7 +96,7 @@ int main() {
 
 		ctpMdSetCallback_RtnDepthMarketData(apiMdUser, (void*)onRcvRtnDepthMarketData);
 
-		ctpMdRegQuoteStk(apiMdUser, "rb1805,IF1806");
+		ctpMdRegQuoteStk(apiMdUser, "rb0,rb1805,IF1806");
 
 		/*CTraderHandler* traderHandler = apiMdUser->getResponse();
 		traderHandler->setSaveDataExchangeCallback([](CThostFtdcExchangeField** p, int n) {

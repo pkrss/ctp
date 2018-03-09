@@ -33,3 +33,6 @@
 /cgo/cpp/x64
 /cgo/cpp/.vs
 /cgo/cpp/Debug
+/clang/src/GPATH
+/clang/src/GRTAGS
+/clang/src/GTAGS

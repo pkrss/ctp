@@ -3,6 +3,8 @@
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <algorithm>
 
 CtpApiMdUser::CtpApiMdUser(CThostFtdcMdApi *mdapi, CMdHandler* response){
     this->mdapi = mdapi;
@@ -68,11 +70,27 @@ void CtpApiMdUser::handleRegQuoteStk(const char *stkStrings)
 
     char **ppInstrumentID = (char **)malloc(l * sizeof(char *));
 
+    // time_t now;
+    // time(&now);
+    // struct tm * nowTm = localtime(&now);
+
+    // char curYYMM[32];
+    // sprintf(curYYMM, "%02d%02d", nowTm->tm_year % 100, nowTm->tm_mon + 1);
+
     int i = 0;
-    for (std::list<std::string>::iterator b = stks.begin(), e = stks.end(); b != e; ++b, ++i)
+    for (std::list<std::string>::iterator b = stks.begin(), e = stks.end(); b != e; ++b)
     {
+        // if(((*b).length()==3) && (0==(*b).substr(2,1).compare("0"))){
+        //     b->resize(7);
+        //     strcpy((char *)(b->c_str() + 2), curYYMM);
+
+        //     if(stks.end() != std::find(stks.begin(),stks.end(), *b))
+        //         continue;
+        // }
 		ppInstrumentID[i] = strdup((*b).c_str()); // strlwr(
+        ++i;
     }
+    l = i;
 
     // mdapi->SubscribeForQuoteRsp(ppInstrumentID, l);
     // printf("CThostFtdcMdApi_SubscribeForQuoteRsp\n");
