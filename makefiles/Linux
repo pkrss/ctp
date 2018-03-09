@@ -56,11 +56,9 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -Ih/ -D_WINDOWS -D_DEBUG -DDEBUG -g
+MY_CFLAGS = -Ih/ -g -O2
 
-# for dll: -fpic -shared 
-
-# release: -g -O2
+# for sp: -fpic -shared 
 
 # The linker options.
 MY_LIBS   = 
@@ -69,7 +67,7 @@ MY_LIBS   =
 CPPFLAGS  = -Wall
 
 # The options used in linking as well as in any direct use of ld.
-LDFLAGS   = -L. -Lthird/ctp/tradeapi64_windows/ -lthostmduserapi -lthosttraderapi -liconv -lpq
+LDFLAGS   = -L. -Lthird/ctp/tradeapi_linux64/ -lthostmduserapi -lthosttraderapi -liconv -lpq
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.

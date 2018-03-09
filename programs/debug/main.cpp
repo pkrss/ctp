@@ -1,14 +1,14 @@
 ﻿// #include "../build.cc"
-#include "impl/ext.h"
-#include "impl/ctpApiMd.h"
-#include "impl/ctpApiMdUser.h"
-#include "impl/ctpApiTrader.h"
-#include "impl/ctpApiTraderUser.h"
-#include "profile.h"
-#include "pgsql.h"
-#include "character.h"
-#include "dll.h"
-#include "impl/utils.h"
+#include "../../impl/ext.h"
+#include "../../impl/ctpApiMd.h"
+#include "../../impl/ctpApiMdUser.h"
+#include "../../impl/ctpApiTrader.h"
+#include "../../impl/ctpApiTraderUser.h"
+#include "../../profile.h"
+#include "../../pgsql.h"
+#include "../../character.h"
+#include "../../dll.h"
+#include "../../impl/utils.h"
 #include "ctpSave.h"
 #include <iostream>
 #include <string.h> // strdup
@@ -150,6 +150,7 @@ int main() {
 			break;
 		}
 
+		
 		apiTraderUser = (CtpApiTraderUser*)ctpTraderInit(traderApi);
 
 		CTraderHandler* traderHandler = apiTraderUser->getResponse();

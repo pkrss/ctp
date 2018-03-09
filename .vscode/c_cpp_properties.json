@@ -44,7 +44,7 @@
         },
         {
             "name": "Win32",
-            "intelliSenseMode": "msvc-x64",
+            "intelliSenseMode": "clang-x64",
             "includePath": [
                 "${workspaceRoot}",
                 "${workspaceRoot}/h",

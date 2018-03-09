@@ -1,7 +1,7 @@
 #include "profile.h"
 
 #include "third/jsoncpp/json.hpp"
-#include "../impl/utils.h"
+#include "impl/utils.h"
 #include <fstream>
 
 // for convenience
@@ -42,7 +42,7 @@ void Profile::init(const char* profile) {
 
 void ReplaceAll(std::string& strSource, const std::string& strOld, const std::string& strNew)
 {
-	int nPos = 0;
+	std::size_t nPos = 0;
 	while ((nPos = strSource.find(strOld, nPos)) != strSource.npos)
 	{
 		strSource.replace(nPos, strOld.length(), strNew);

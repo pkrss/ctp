@@ -1,7 +1,7 @@
 #ifndef __MY_CTP_SAVE__H__
 #define __MY_CTP_SAVE__H__
 
-#include "h/ThostFtdcUserApiStruct.h"
+#include "../../h/ThostFtdcUserApiStruct.h"
 
 class ctpSave
 {
