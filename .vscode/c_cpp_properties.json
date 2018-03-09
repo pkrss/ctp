@@ -67,9 +67,6 @@
             "browse": {
                 "path": [
                     "${workspaceFolder}",
-                    "${workspaceFolder}/clang/h",
-                    "${workspaceFolder}/clang/impl",
-                    "${workspaceFolder}/clang/src",
                     "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
                     "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
                     "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/backward",

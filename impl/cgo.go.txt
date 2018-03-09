@@ -1,0 +1,45 @@
+package cpp
+
+import "C"
+
+import (
+	"unsafe"
+)
+
+type FunExtGbk2utf8 func(gbkString string) string
+
+var VarGbk2utf8 FunExtGbk2utf8
+
+type FunProfileGetString func(unsafe.Pointer) string
+
+var VarProfileGetString FunProfileGetString
+
+//export ExtProfileGetString
+func ExtProfileGetString(key *C.char) *C.char {
+	if VarProfileGetString != nil {
+		s := VarProfileGetString(unsafe.Pointer(key))
+		if s == "" {
+			return nil
+		}
+
+		return C.CString(s)
+	}
+
+	return nil
+	// s := conf.GetString(C.GoString(key))
+	// if s == "" {
+	// 	return nil
+	// }
+
+	// return C.CString(s)
+}
+
+//export ExtGbkToUtf8
+func ExtGbkToUtf8(gbkStr *C.char) *C.char {
+	if VarGbk2utf8 != nil {
+		s := VarGbk2utf8(C.GoString(gbkStr))
+		return C.CString(s)
+
+	}
+	return gbkStr
+}

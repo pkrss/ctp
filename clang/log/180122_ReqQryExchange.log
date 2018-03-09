@@ -1,6 +1,0 @@
-CThostFtdcTraderApi::ReqQryExchange(ExchangeID=)
-CTraderHandler::OnRspQryExchange ExchangeID=CFFEX, ExchangeName=中国金融交易所, ExchangeProperty=48, IsLast=0
-CTraderHandler::OnRspQryExchange ExchangeID=SHFE, ExchangeName=上海期货交易所, ExchangeProperty=48, IsLast=0
-CTraderHandler::OnRspQryExchange ExchangeID=DCE, ExchangeName=大连商品交易所, ExchangeProperty=49, IsLast=0
-CTraderHandler::OnRspQryExchange ExchangeID=CZCE, ExchangeName=郑州商品交易所, ExchangeProperty=48, IsLast=0
-CTraderHandler::OnRspQryExchange ExchangeID=INE, ExchangeName=上海国际能源交易中心股份有限公司, ExchangeProperty=48, IsLast=1
