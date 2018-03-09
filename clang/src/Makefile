@@ -56,8 +56,9 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -I../third/ctp/ -fpic -D_WINDOWS -D_DEBUG -DDEBUG -g -g3 -gdwarf-2
+MY_CFLAGS = -I../third/ctp/ -fpic -D_WINDOWS -D_DEBUG -DDEBUG -g
 
+# for dll: -shared 
 
 # release: -g -O2
 
@@ -76,7 +77,7 @@ SRCDIRS   = . ../impl
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
-PROGRAM   = out.o
+PROGRAM   = out.exe
 
 ## Implicit Section: change the following only when necessary.
 ##==========================================================================
@@ -224,10 +225,10 @@ ctags: $(HEADERS) $(SOURCES)
 #-------------------------------------
 $(PROGRAM):$(OBJS)
 ifeq ($(SRC_CXX),)              # C program
-	$(LINK.c) -shared  $(OBJS) $(MY_LIBS) -o $@
+	$(LINK.c) $(OBJS) $(MY_LIBS) -o $@
 	@echo Type ./$@ to execute the program.
 else                            # C++ program
-	$(LINK.cxx) -shared $(OBJS) $(MY_LIBS) -o $@
+	$(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
 	@echo Type ./$@ to execute the program.
 endif
 
