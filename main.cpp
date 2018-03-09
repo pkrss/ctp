@@ -43,7 +43,7 @@ int main() {
 	Profile::getInstance()->init("go/conf/config.json");
 
 	PgSql::getInstance()->init();
-
+	
 	void* soMd = 0;
 	void* soTrader = 0;
 
