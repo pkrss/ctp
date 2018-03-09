@@ -4,7 +4,7 @@ MY_CFLAGS = -Ih/ -D_WINDOWS -D_DEBUG -DDEBUG -g
 
 # for dll: -fpic -shared 
 
-# release: -g -O2
+# release: -O2
 
 # The linker options.
 MY_LIBS   = 
