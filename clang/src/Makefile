@@ -56,9 +56,9 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -I../third/ctp/ -fpic -D_WINDOWS -D_DEBUG -DDEBUG -g
+MY_CFLAGS = -I../third/ctp/ -D_WINDOWS -D_DEBUG -DDEBUG -g
 
-# for dll: -shared 
+# for dll: -fpic -shared 
 
 # release: -g -O2
 

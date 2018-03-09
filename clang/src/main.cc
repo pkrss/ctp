@@ -40,7 +40,7 @@ int main() {
 
 	setlocale(LC_ALL, "");
 
-	Profile::getInstance()->init("../../conf/config.json");
+	Profile::getInstance()->init("../../go/conf/config.json");
 
 	PgSql::getInstance()->init();
 
