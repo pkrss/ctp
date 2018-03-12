@@ -1,6 +1,6 @@
 
-# The pre-processor and compiler options.
-MY_CFLAGS = -Ih/ -D_WINDOWS -D_DEBUG -DDEBUG -g
+# The pre-processor and compiler options. -Ithird/ctp/ 
+MY_CFLAGS = -D_WINDOWS -D_DEBUG -DDEBUG -g
 
 # for dll: -fpic -shared 
 

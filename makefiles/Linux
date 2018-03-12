@@ -56,7 +56,7 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -Ih/ -g -O2
+MY_CFLAGS = -g -O2
 
 # for sp: -fpic -shared 
 

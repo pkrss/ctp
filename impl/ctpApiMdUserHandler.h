@@ -1,7 +1,7 @@
 #if !defined(__CTPAPI_MDUSER_HANDLER_H__)
 #define __CTPAPI_MDUSER_HANDLER_H__
 
-#include "../h/ThostFtdcMdApi.h"
+#include "../third/ctp/ThostFtdcMdApi.h"
 
 class CtpApiMdUser;
 
