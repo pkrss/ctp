@@ -19,7 +19,7 @@ public:
 
 	std::string getString(const char* key);
 
-	const char* getStringCache(const char* key);
+	const char* getStringCache(const char* key,const char* defaultValue = "");
 };
 
 #endif

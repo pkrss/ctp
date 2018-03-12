@@ -87,7 +87,7 @@ std::string Profile::getString(const char* key){
 	//return (*(json *)pJson)[s.c_str()];
 }
 
-const char* Profile::getStringCache(const char* key) {
+const char* Profile::getStringCache(const char* key,const char* defaultValue) {
 	M2M::const_iterator f = m2m.find(key);
 	if (f == m2m.end()) {
 		m2m[key] = getString(key);
@@ -98,5 +98,5 @@ const char* Profile::getStringCache(const char* key) {
 		return (*f).second.c_str();
 	}
 
-	return "";
+	return defaultValue;
 }

@@ -43,6 +43,21 @@
                 "focus": false,
                 "panel": "shared"
             }
+        },{
+            "label": "CompileNotifyHq",
+            "command": "make -f Makefiles/NotifyHqDebug",
+            "args": [],
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
         }
     ]
 }

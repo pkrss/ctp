@@ -63,6 +63,7 @@
             "defines": [
                 "DEBUG",
                 "_DEBUG",
+                "_WIN32",
                 "UNICODE",
                 "_UNICODE",
                 "_WINDOWS",

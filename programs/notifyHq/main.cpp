@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string.h> // strdup
 
+#include "hqRedis.h"
+
 #if defined(_MSC_VER)
 #define My_DLLEXP __declspec(dllimport)
 #else
@@ -34,13 +36,17 @@ void onRcvRtnDepthMarketData(struct CThostFtdcDepthMarketDataField* pDepthMarket
 	std::cout << "UpdateTime: " << pDepthMarketData->UpdateTime << std::endl;
 }
 
+CtpApiMdUser* apiMdUser = 0;
+
 int main() {
 
 	Profile::getInstance()->init("go/conf/config.json");
 	
 	void* soMd = 0;
 
-	CtpApiMdUser* apiMdUser = 0;
+	apiMdUser = 0;
+
+	HqRedis *hqRedis = 0;
 
 	do {
 		soMd = so_open("thostmduserapi");
@@ -80,9 +86,22 @@ int main() {
 
 		apiMdUser = (CtpApiMdUser*)ctpMdInit(mdApi);
 
-		ctpMdSetCallback_RtnDepthMarketData(apiMdUser, (void*)onRcvRtnDepthMarketData);
+		const char *redisIp = Profile::getInstance()->getStringCache("MY_REDIS_IP", "127.0.0.1");
+		const char *redisPort = Profile::getInstance()->getStringCache("MY_REDIS_PORT", "6379");
+		const char *redisPassword = Profile::getInstance()->getStringCache("MY_REDIS_PASSWORD", "");
+		const char *redisDbNum = Profile::getInstance()->getStringCache("MY_REDIS_DBNUM", "0");
+
+		hqRedis = new HqRedis(apiMdUser);
+
+		hqRedis->start(redisIp, atoi(redisPort), redisPassword, atoi(redisDbNum));
 
 	} while (false);
+
+	if (hqRedis) {
+		hqRedis->stop();
+		delete hqRedis;
+		hqRedis = 0;
+	}
 
 	if (apiMdUser) {
 		ctpMdWait(apiMdUser);
