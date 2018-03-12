@@ -1,6 +1,6 @@
 
 # The pre-processor and compiler options. -Ithird/ctp/ 
-MY_CFLAGS = -D_WINDOWS -D_DEBUG -DDEBUG -g
+MY_CFLAGS = -D_WINDOWS -D_DEBUG -DDEBUG -g -Ithird/cpp_redis/includes -Ithird/cpp_redis/tacopie/includes 
 
 # for dll: -fpic -shared 
 

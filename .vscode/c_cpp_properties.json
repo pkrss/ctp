@@ -47,11 +47,8 @@
             "intelliSenseMode": "clang-x64",
             "includePath": [
                 "${workspaceRoot}",
-                "${workspaceRoot}/h",
-                "${workspaceRoot}/impl",
-                "${workspaceRoot}/third/iconv",
-                "${workspaceRoot}/third/jsoncpp",
-                "${workspaceRoot}/third/libpq",
+                "${workspaceRoot}/third/cpp_redis/includes",
+                "${workspaceRoot}/third/cpp_redis/tacopie/includes",                
                 "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
                 "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
                 "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/backward",
@@ -73,6 +70,8 @@
             "browse": {
                 "path": [
                     "${workspaceRoot}",
+                    "${workspaceRoot}/third/cpp_redis/includes", 
+                    "${workspaceRoot}/third/cpp_redis/tacopie/includes",                   
                     "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
                     "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
                     "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/backward",

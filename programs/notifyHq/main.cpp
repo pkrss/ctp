@@ -2,8 +2,6 @@
 #include "../../impl/ext.h"
 #include "../../impl/ctpApiMd.h"
 #include "../../impl/ctpApiMdUser.h"
-#include "../../impl/ctpApiTrader.h"
-#include "../../impl/ctpApiTraderUser.h"
 #include "../../profile.h"
 #include "../../pgsql.h"
 #include "../../character.h"
@@ -22,29 +20,13 @@
 
 typedef My_DLLEXP  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath, const bool bIsUsingUdp, const bool bIsMulticast);
 
-ctpSave* pCtpSaveObj = 0;
-
-void onRcvRtnDepthMarketData(struct CThostFtdcDepthMarketDataField* pDepthMarketData) {
-	// 打印行情，字段较多，截取部分
-	std::cout << "=====DepthMarketData=====" << std::endl;
-	std::cout << "TradingDay: " << pDepthMarketData->TradingDay << std::endl;
-	std::cout << "ExchangeID: " << pDepthMarketData->ExchangeID << std::endl;
-	std::cout << "InstrumentID: " << pDepthMarketData->InstrumentID << std::endl;
-	std::cout << "ExchangeInstID: " << pDepthMarketData->ExchangeInstID << std::endl;
-	std::cout << "LastPrice: " << pDepthMarketData->LastPrice << std::endl;
-	std::cout << "Volume: " << pDepthMarketData->Volume << std::endl;
-	std::cout << "UpdateTime: " << pDepthMarketData->UpdateTime << std::endl;
-}
-
-CtpApiMdUser* apiMdUser = 0;
-
 int main() {
 
 	Profile::getInstance()->init("go/conf/config.json");
 	
 	void* soMd = 0;
 
-	apiMdUser = 0;
+	CtpApiMdUser* apiMdUser = 0;
 
 	HqRedis *hqRedis = 0;
 
