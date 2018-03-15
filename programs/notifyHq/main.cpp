@@ -21,6 +21,17 @@ typedef My_DLLEXP  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath
 
 int main() {
 
+// #if defined(_WIN32) || defined(_WINDOWS)
+//   //! Windows netword DLL init
+//   WORD version = MAKEWORD(2, 2);
+//   WSADATA data;
+
+//   if (WSAStartup(version, &data) != 0) {
+//     std::cerr << "WSAStartup() failure" << std::endl;
+//     return -1;
+//   }
+// #endif /* _WIN32 */
+
 	Profile::getInstance()->init("go/conf/config.json");
 	
 	void* soMd = 0;
@@ -75,6 +86,8 @@ int main() {
 		hqRedis = new HqRedis(apiMdUser);
 
 		hqRedis->start(redisIp, atoi(redisPort), redisPassword, atoi(redisDbNum));
+
+		ctpMdWait(apiMdUser);
 
 	} while (false);
 

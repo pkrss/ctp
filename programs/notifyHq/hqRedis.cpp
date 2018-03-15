@@ -93,8 +93,84 @@ void HqRedis::start(const char* ip, int port, const  char* psw, int dbNum){
 	std::string sIp = ip;
 	std::uint32_t uPort = (std::uint32_t)port;
 	// std::uint32_t timeOut = 10000;
-	p_redis_client->connect(sIp, uPort);
-	p_redis_async_client->connect(sIp, uPort);
+	p_redis_client->connect(sIp, uPort, [](const std::string& host, std::size_t port, cpp_redis::client::connect_state status){
+		const char *s = "unknwon";
+		switch(status){
+			case cpp_redis::client::connect_state::dropped:
+				s = "dropped";
+				break;
+			case cpp_redis::client::connect_state::start:
+				s = "start";
+				break;
+			case cpp_redis::client::connect_state::sleeping:
+				s = "sleeping";
+				break;
+			case cpp_redis::client::connect_state::ok:
+				s = "ok";
+				break;
+			case cpp_redis::client::connect_state::failed:
+				s = "failed";
+				break;
+			case cpp_redis::client::connect_state::lookup_failed:
+				s = "lookup_failed";
+				break;
+			case cpp_redis::client::connect_state::stopped:
+				s = "stopped";
+				break;
+		}
+
+		printf("redis client connect %s:%d, %s\n", host.c_str(), (int)port, s);
+	});
+
+	if(psw && *psw){
+		p_redis_client->auth(psw, [](const cpp_redis::reply& reply) {
+			if (reply.is_error()) { 
+				printf("redis client Authentication failed: %s\n", reply.as_string().c_str());
+			} else {
+				printf("redis client successful authentication\n");
+			}
+		});
+	}
+
+	p_redis_async_client->connect(sIp, uPort, [](const std::string& host, std::size_t port, cpp_redis::subscriber::connect_state status){
+		const char *s = "unknwon";
+		switch(status){
+			case cpp_redis::subscriber::connect_state::dropped:
+				s = "dropped";
+				break;
+			case cpp_redis::subscriber::connect_state::start:
+				s = "start";
+				break;
+			case cpp_redis::subscriber::connect_state::sleeping:
+				s = "sleeping";
+				break;
+			case cpp_redis::subscriber::connect_state::ok:
+				s = "ok";
+				break;
+			case cpp_redis::subscriber::connect_state::failed:
+				s = "failed";
+				break;
+			case cpp_redis::subscriber::connect_state::lookup_failed:
+				s = "lookup_failed";
+				break;
+			case cpp_redis::subscriber::connect_state::stopped:
+				s = "stopped";
+				break;
+		}
+
+		printf("redis subscribe connect %s:%d, %s\n", host.c_str(), (int)port, s);
+	});
+	
+	if(psw && *psw){
+		p_redis_async_client->auth(psw, [](const cpp_redis::reply& reply) {
+			if (reply.is_error()) { 
+				printf("redis subscribe Authentication failed: %s\n", reply.as_string().c_str());
+			} else {
+				printf("redis subscribe successful authentication\n");
+			}
+		});
+	}
+
 	p_redis_async_client->subscribe("stk_changed", onRecvHqStkChanged);
 
 	p_redis_async_client->commit();
