@@ -1,6 +1,5 @@
-#include "ctpApiTraderUserHandler.h"
-#include "ctpApiTraderUser.h"
 #include "ctpApiTrader.h"
+#include "../third/ctp/ThostFtdcTraderApi.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -33,10 +32,10 @@ void* ctpTraderInit(void *api)
     return ret;
 }
 
-void ctpTraderRegQuoteStk(void *p, const char* stks){
-    CtpApiTraderUser* api = (CtpApiTraderUser*)p;
-    api->RegQuoteStk(stks);
-}
+// void ctpTraderRegQuoteStk(void *p, const char* stks){
+//     CtpApiTraderUser* api = (CtpApiTraderUser*)p;
+//     api->RegQuoteStk(stks);
+// }
 
 int ctpTraderWait(void* p) {
 	CtpApiTraderUser* api = (CtpApiTraderUser*)p;

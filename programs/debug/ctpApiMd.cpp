@@ -1,6 +1,5 @@
-#include "ctpApiMdUserHandler.h"
-#include "ctpApiMdUser.h"
 #include "ctpApiMd.h"
+#include "../third/ctp/ThostFtdcMdApi.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
@@ -31,14 +30,14 @@ void* ctpMdInit(void *mdapi)
     return ret;
 }
 
-void ctpMdSetCallback_RtnDepthMarketData(void *p, void* cb) {
-	((CtpApiMdUser*)p)->setCallback_RtnDepthMarketData(cb);
-}
+// void ctpMdSetCallback_RtnDepthMarketData(void *p, void* cb) {
+// 	((CtpApiMdUser*)p)->setCallback_RtnDepthMarketData(cb);
+// }
 
-void ctpMdRegQuoteStk(void *p, const char* stks){
-    CtpApiMdUser* api = (CtpApiMdUser*)p;
-    api->RegQuoteStk(stks);
-}
+// void ctpMdRegQuoteStk(void *p, const char* stks){
+//     CtpApiMdUser* api = (CtpApiMdUser*)p;
+//     api->RegQuoteStk(stks);
+// }
 
 int ctpMdWait(void* p) {
 	CtpApiMdUser* api = (CtpApiMdUser*)p;

@@ -1,7 +1,7 @@
 #ifndef __HQ_REDIS__H__
 #define __HQ_REDIS__H__
 
-class CtpApiMdUser;
+class HqMdUser;
 
 namespace cpp_redis{
   class client;
@@ -11,7 +11,7 @@ namespace cpp_redis{
 class HqRedis
 {
 public:
-  HqRedis(CtpApiMdUser* apiMdUser);
+  HqRedis(HqMdUser* apiMdUser);
   void start(const char *ip, int port, const char *psw, int dbNum);
 
   void stop();
@@ -22,7 +22,7 @@ private:
   cpp_redis::client *p_redis_client;
   cpp_redis::subscriber *p_redis_async_client;
 public:
-  CtpApiMdUser* apiMdUser;
+  HqMdUser* apiMdUser;
 };
 
 #endif

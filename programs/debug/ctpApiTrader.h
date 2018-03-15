@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 void* ctpTraderInit(void* api);
-void ctpTraderRegQuoteStk(void *p, const char* stks);
+// void ctpTraderRegQuoteStk(void *p, const char* stks);
 int ctpTraderWait(void* p);
 
 #if defined(__cplusplus) || defined(c_plusplus)

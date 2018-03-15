@@ -17,7 +17,7 @@ LDFLAGS   = -L. -Lthird/ctp/tradeapi64_windows/ -lthostmduserapi -lthosttraderap
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
-SRCDIRS   = . impl programs/debug
+SRCDIRS   = . programs/debug
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.

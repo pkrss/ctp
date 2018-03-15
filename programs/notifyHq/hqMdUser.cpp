@@ -1,12 +1,12 @@
-#include "ctpApiMdUserHandler.h"
-#include "ctpApiMdUser.h"
-#include "utils.h"
+#include "hqMdUserHandler.h"
+#include "hqMdUser.h"
+#include "../../utils.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <algorithm>
 
-CtpApiMdUser::CtpApiMdUser(CThostFtdcMdApi *mdapi, CMdHandler* response){
+HqMdUser::HqMdUser(CThostFtdcMdApi *mdapi, HqMdHandler* response){
     this->mdapi = mdapi;
     this->response = response;
 
@@ -16,7 +16,7 @@ CtpApiMdUser::CtpApiMdUser(CThostFtdcMdApi *mdapi, CMdHandler* response){
 }
 
 // 登录结果响应
-void CtpApiMdUser::OnRspUserLogin()
+void HqMdUser::OnRspUserLogin()
 {
     flagOnRspUserLogined = true;
     if (rememberedRegQuoteStks)
@@ -30,12 +30,12 @@ void CtpApiMdUser::OnRspUserLogin()
 }
 
 // 登出结果响应
-void CtpApiMdUser::OnRspUserLogout()
+void HqMdUser::OnRspUserLogout()
 {
     flagOnRspUserLogined = false;
 }
 
-void CtpApiMdUser::RegQuoteStk(const char *stks)
+void HqMdUser::RegQuoteStk(const char *stks)
 {
 
     if ((stks == 0) || (stks[0] == 0))
@@ -52,7 +52,7 @@ void CtpApiMdUser::RegQuoteStk(const char *stks)
     handleRegQuoteStk(stks);
 }
 
-void CtpApiMdUser::handleRegQuoteStk(const char *stkStrings)
+void HqMdUser::handleRegQuoteStk(const char *stkStrings)
 {
 
     if ((stkStrings == 0) || (stkStrings[0] == 0))
@@ -105,7 +105,7 @@ void CtpApiMdUser::handleRegQuoteStk(const char *stkStrings)
 
 }
 
-int CtpApiMdUser::waitExit() {
+int HqMdUser::waitExit() {
 	if (!mdapi)
 		return -9;
 	int ret = mdapi->Join();
@@ -115,9 +115,9 @@ int CtpApiMdUser::waitExit() {
 	return ret;
 }
 
-void* CtpApiMdUser::getCallback_RtnDepthMarketData() {
+void* HqMdUser::getCallback_RtnDepthMarketData() {
 	return this->pCallback_RtnDepthMarketData;
 }
-void CtpApiMdUser::setCallback_RtnDepthMarketData(void *cb) {
+void HqMdUser::setCallback_RtnDepthMarketData(void *cb) {
 	this->pCallback_RtnDepthMarketData = cb;
 }

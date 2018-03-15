@@ -45,7 +45,7 @@
             }
         },{
             "label": "CompileNotifyHq",
-            "command": "make -f Makefiles/NotifyHqDebug",
+            "command": "mingw32-make -f Makefiles/NotifyHqDebug",
             "args": [],
             "type": "shell",
             "group": {

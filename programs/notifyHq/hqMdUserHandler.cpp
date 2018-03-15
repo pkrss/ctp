@@ -1,23 +1,23 @@
-#include "ctpApiMdUserHandler.h"
-#include "ctpApiMdUser.h"
-#include "ctpApiMd.h"
-#include "utils.h"
+#include "HqMdUserHandler.h"
+#include "HqMdUser.h"
+#include "hqMd.h"
+#include "../../utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-CMdHandler::CMdHandler(CThostFtdcMdApi *mdapi)
+HqMdHandler::HqMdHandler(CThostFtdcMdApi *mdapi)
 {
     requestID = 0;
     this->mdapi = mdapi;
 }
 
-void CMdHandler::setApi(CtpApiMdUser* api){
+void HqMdHandler::setApi(HqMdUser* api){
     this->api = api;
 }
 
 // 允许登录事件
-void CMdHandler::OnFrontConnected()
+void HqMdHandler::OnFrontConnected()
 {
     printf("OnFrontConnected()...\n");
 
@@ -49,20 +49,20 @@ void CMdHandler::OnFrontConnected()
 ///        0x2001 接收心跳超时
 ///        0x2002 发送心跳失败
 ///        0x2003 收到错误报文
-void CMdHandler::OnFrontDisconnected(int nReason)
+void HqMdHandler::OnFrontDisconnected(int nReason)
 {
     printf("OnFrontDisconnected %d\n", nReason);
 }
 
 ///心跳超时警告。当长时间未收到报文时，该方法被调用。
 ///@param nTimeLapse 距离上次接收报文的时间
-void CMdHandler::OnHeartBeatWarning(int nTimeLapse)
+void HqMdHandler::OnHeartBeatWarning(int nTimeLapse)
 {
     printf("OnHeartBeatWarning %d\n", nTimeLapse);
 }
 
 // 登录结果响应
-void CMdHandler::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
+void HqMdHandler::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
                                 CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     char *msg = ExtGbkToUtf8(pRspInfo->ErrorMsg);
@@ -77,7 +77,7 @@ void CMdHandler::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 }
 
 // 登出结果响应
-void CMdHandler::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout,
+void HqMdHandler::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout,
                                  CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     printf("OnRspUserLogout nRequestID:%d bIsLast:%d\n", nRequestID, (int)bIsLast);
@@ -89,7 +89,7 @@ void CMdHandler::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout,
 }
 
 // 错误信息响应方法
-void CMdHandler::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
+void HqMdHandler::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
     char *msg = ExtGbkToUtf8(pRspInfo->ErrorMsg);
     printf("OnRspError nRequestID=%d bIsLast=%d errorId=%d errorMsg=%s\n", nRequestID, (int)bIsLast, pRspInfo->ErrorID, msg);
@@ -97,7 +97,7 @@ void CMdHandler::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bo
 }
 
 // 行情详情通知
-void CMdHandler::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
+void HqMdHandler::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
 	if (!this->api)
 		return;

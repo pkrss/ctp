@@ -1,8 +1,8 @@
 #if !defined(__CTPAPI_TRADERUSER_HANDLER_H__)
 #define __CTPAPI_TRADERUSER_HANDLER_H__
 
-#include "../third/ctp/ThostFtdcTraderApi.h"
-#include "saveDataHelper.h"
+#include "../../third/ctp/ThostFtdcTraderApi.h"
+#include "../../impl/saveDataHelper.h"
 
 class CtpApiTraderUser;
 

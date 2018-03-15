@@ -12,9 +12,9 @@ extern "C" {
 void* ctpMdInit(void* mdapi);
 
 // typedef void(*Cb_RtnDepthMarketData)(struct CThostFtdcDepthMarketDataField *pDepthMarketData);
-void ctpMdSetCallback_RtnDepthMarketData(void *p, void* cb);
+// void ctpMdSetCallback_RtnDepthMarketData(void *p, void* cb);
 
-void ctpMdRegQuoteStk(void *p, const char* stks);
+// void ctpMdRegQuoteStk(void *p, const char* stks);
 
 int ctpMdWait(void* p);
 

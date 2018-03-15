@@ -3,14 +3,13 @@
 #include "../../third/jsoncpp/json.hpp"
 #include "../../third/ctp/ThostFtdcUserApiStruct.h"
 
-#include "../../impl/ctpApiMdUser.h"
+#include "hqMdUser.h"
 
 #include "../../third/cpp_redis/includes/cpp_redis/cpp_redis"
 
 #include "../../third/jsoncpp/json.hpp"
 using json = nlohmann::json;
 
-#include "../../impl/ctpApiMd.h"
 
 HqRedis* hqRedis = 0;
 
@@ -83,10 +82,10 @@ void onRecvDepthMarketDataField(CThostFtdcDepthMarketDataField *pDepthMarketData
 	if (!hqRedis || !hqRedis->apiMdUser)
 		return;
 
-	ctpMdRegQuoteStk(hqRedis->apiMdUser, msg.c_str());
+	hqRedis->apiMdUser->RegQuoteStk(msg.c_str());
 }
 
-HqRedis::HqRedis(CtpApiMdUser* apiMdUser){
+HqRedis::HqRedis(HqMdUser* apiMdUser){
 	p_redis_client = new cpp_redis::client();
   	p_redis_async_client = new cpp_redis::subscriber();
 	this->apiMdUser = apiMdUser;

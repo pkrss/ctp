@@ -7,7 +7,7 @@ MY_CFLAGS = -D_WINDOWS -D_DEBUG -DDEBUG -g -Ithird/cpp_redis/includes -Ithird/cp
 # release: -O2
 
 # The linker options.
-MY_LIBS   = -L. -Lthird/ctp/tradeapi64_windows/ -lws2_32 -lthostmduserapi -lthosttraderapi -lhiredis
+MY_LIBS   = -L. -Lthird/ctp/tradeapi64_windows/ -lws2_32 -lthostmduserapi -lthosttraderapi
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall
@@ -17,7 +17,7 @@ LDFLAGS   =
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
-SRCDIRS   = . impl programs/notifyHq
+SRCDIRS   = . programs/notifyHq
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
