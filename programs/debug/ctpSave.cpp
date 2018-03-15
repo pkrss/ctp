@@ -13,6 +13,10 @@ void ctpSave::SetSaveDataFun(SaveDataFun saveDataFun) {
 	this->saveDataFun = saveDataFun;
 }
 
+void ctpSave::SetReadDataFun(ReadDataFun readDataFun) {
+	this->readDataFun = readDataFun;
+}
+
 void ctpSave::saveExchanges(CThostFtdcExchangeField** exchanges, int count) {
 
 	if (!this->saveDataFun || !exchanges || !count)
@@ -42,29 +46,30 @@ void ctpSave::saveInstruments(CThostFtdcInstrumentField** instaruments, int coun
 	if (!this->saveDataFun || !instaruments || !count)
 		return;
 
-	typedef std::map<std::string, std::list<CThostFtdcInstrumentField*> > E2IMAP;
-	E2IMAP exchange2Instruments;
+	// typedef std::map<std::string, std::list<CThostFtdcInstrumentField*> > E2IMAP;
+	// E2IMAP exchange2Instruments;
 
-	for (int i = 0; i < count; ++i) {
-		CThostFtdcInstrumentField* item = instaruments[i];
+	// for (int i = 0; i < count; ++i) {
+	// 	CThostFtdcInstrumentField* item = instaruments[i];
 
-		std::string exchangeId = item->ExchangeID;
-		E2IMAP::iterator b = exchange2Instruments.find(exchangeId);
-		if (b == exchange2Instruments.end()) {
-			exchange2Instruments.insert(std::make_pair(exchangeId, std::list<CThostFtdcInstrumentField*>()));
-			b = exchange2Instruments.find(item->ExchangeID);
-		}
+	// 	std::string exchangeId = item->ExchangeID;
+	// 	E2IMAP::iterator b = exchange2Instruments.find(exchangeId);
+	// 	if (b == exchange2Instruments.end()) {
+	// 		exchange2Instruments.insert(std::make_pair(exchangeId, std::list<CThostFtdcInstrumentField*>()));
+	// 		b = exchange2Instruments.find(item->ExchangeID);
+	// 	}
 
-		b->second.push_back(item);
-	}
+	// 	b->second.push_back(item);
+	// }
 
-	for (E2IMAP::const_iterator b = exchange2Instruments.begin(), e = exchange2Instruments.end(); b != e; ++b) {
+	// for (E2IMAP::const_iterator b = exchange2Instruments.begin(), e = exchange2Instruments.end(); b != e; ++b) {
 
 		json j = json::array();
 
-		for (std::list<CThostFtdcInstrumentField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b2 != e2; ++b2) {
-			CThostFtdcInstrumentField* item = *b2;
+	// 	for (std::list<CThostFtdcInstrumentField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b2 != e2; ++b2) {
+	// 		CThostFtdcInstrumentField* item = *b2;
 
+		for (int i = 0; i < count;++i){
 
 			char* name = ExtGbkToUtf8(item->InstrumentName);
 
@@ -107,10 +112,87 @@ void ctpSave::saveInstruments(CThostFtdcInstrumentField** instaruments, int coun
 
 		std::string content = j.dump();
 
-		this->saveDataFun(("futuresInstruments-" + b->first).c_str(), 0, content.c_str());
-	}
+		// this->saveDataFun(("futuresInstruments-" + b->first).c_str(), 0, content.c_str());
+		this->saveDataFun("futuresInstruments", 0, content.c_str());
+	// }
 }
 
+CThostFtdcInstrumentField** ctpSave::readInstruments(int* outCount){
+	if (!this->readDataFun || !outCount)
+		return;
+
+	const char *content = 0;
+
+	int count = 0;
+
+	CThostFtdcInstrumentField **ret = 0;
+
+	do{
+		content = this->readDataFun("futuresInstruments", 0);
+
+		if(!content || !*content)
+			break;
+
+		json j = json::parse(content);
+
+		ret = malloc(sizeof(CThostFtdcInstrumentField*) * j.count());
+
+		for (json::iterator b = j.begin(), e=j.end(); b != e; ++b) {
+			json& r = *j;
+
+			CThostFtdcInstrumentField *item = malloc(sizeof(CThostFtdcInstrumentField));
+			memset(item, 0, sizeof(CThostFtdcInstrumentField));
+
+			strcpy(item->InstrumentID, r["id"]);
+
+			char* name = utf8_to_gbk(r["name"]);
+			strcpy(item->InstrumentName, name);
+			strcpy(item->ExchangeID, r["exchangeID"]);
+			strcpy(item->ProductID, r["productID"]);
+			item->ProductClass = r["productClass"];
+			item->DeliveryYear = r["deliveryYear"];
+			item->DeliveryMonth = r["deliveryMonth"];
+			item->MaxMarketOrderVolume = r["maxMarketOrderVolume"];
+			item->MinMarketOrderVolume = r["minMarketOrderVolume"];
+			item->MaxLimitOrderVolume = r["maxLimitOrderVolume"];
+			item->MinLimitOrderVolume = r["minLimitOrderVolume"];
+			item->VolumeMultiple = r["volumeMultiple"];
+			item->PriceTick = r["priceTick"];
+			strcpy(item->CreateDate, r["createDate"]);
+			strcpy(item->OpenDate, r["openDate"]);
+			strcpy(item->ExpireDate, r["expireDate"]);
+			strcpy(item->StartDelivDate, r["startDelivDate"]);
+			strcpy(item->EndDelivDate, r["endDelivDate"]);
+			item->InstLifePhase = r["instLifePhase"];
+			item->IsTrading = r["isTrading"];
+			item->PositionType = r["positionType"];
+			item->PositionDateType = r["positionDateType"];
+			item->LongMarginRatio = r["longMarginRatio"];
+			item->ShortMarginRatio = r["shortMarginRatio"];
+			item->MaxMarginSideAlgorithm = r["maxMarginSideAlgorithm"];
+			item->UnderlyingInstrID = r["underlyingInstrID"];
+			item->StrikePrice = r["strikePrice"];
+			item->OptionsType = r["optionsType"];
+			item->UnderlyingMultiple = r["underlyingMultiple"];
+			item->CombinationType = r["combinationType"];
+
+			free(name);
+
+			ret[count] = item;
+			++count;
+		}
+
+	} while (false);
+
+	*outCount = count;
+
+	if(content){
+		free(content);
+		content = 0;
+	}
+
+	return ret;
+}
 
 void ctpSave::saveInstrumentsStatus(CThostFtdcInstrumentStatusField** instarumentsStatus, int count) {
 

@@ -12,6 +12,7 @@
 #include <string.h> // strdup
 
 #include "hqRedis.h"
+#include "fileSave.h"
 
 #if defined(_MSC_VER)
 #define My_DLLEXP __declspec(dllimport)
@@ -21,6 +22,8 @@
 
 typedef My_DLLEXP  CThostFtdcTraderApi*(*FunCreateFtdcTraderApi)(const char *pszFlowPath);
 typedef My_DLLEXP  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath, const bool bIsUsingUdp, const bool bIsMulticast);
+
+ctpSave* pCtpSaveObj = 0;
 
 int main() {
 
@@ -39,6 +42,43 @@ int main() {
 	
 	void* soMd = 0;
 	void* soTrader = 0;
+
+
+	std::unique_ptr<ctpSave> ctpSaveObj(new ctpSave());
+	pCtpSaveObj = ctpSaveObj.get();
+	pCtpSaveObj->SetSaveDataFun([](const char* name, long id, const char* content) {
+		if(!name || !*name || !content)
+			return;
+
+		// PgSql::getInstance()->saveData(name, id, content);
+		std::string path = Profile::getInstance()->getStringCache("data.save", "../data/save");
+		char s[32];
+		ltoa(id, a, 10);
+		path += "/" + name;
+
+		mkdir_r(path.c_str());
+
+		path += "/" + s + ".json";
+
+		myFileWrite(path, content);
+	});
+
+	pCtpSaveObj->SetReadDataFun(const char *[](const char *name, long id) {
+		if(!name || !*name || !content)
+			return;
+
+		// PgSql::getInstance()->saveData(name, id, content);
+		std::string path = Profile::getInstance()->getStringCache("data.save", "../data/save");
+		char s[32];
+		ltoa(id, a, 10);
+		path += "/" + name;
+
+		mkdir_r(path.c_str());
+
+		path += "/" + s + ".json";
+
+		return myFileRead(path);
+	});
 
 	HqMdUser* apiMdUser = 0;
 	HqTraderUser* apiTraderUser = 0;
@@ -91,8 +131,6 @@ int main() {
 		hqRedis = new HqRedis(apiMdUser);
 
 		hqRedis->start(redisIp, atoi(redisPort), redisPassword, atoi(redisDbNum));
-
-
 	} while (false);
 	
 
@@ -131,21 +169,32 @@ int main() {
 			break;
 		}
 
+
+		int instrumentsCount = 0;
+		CThostFtdcInstrumentField** ppInstrumentField = pCtpSaveObj->readInstruments(&instrumentsCount);
+		if(ppInstrumentField && instrumentsCount>0){
+			
+		}
+		if(ppInstrumentField){
+			for (int i = 0; i < instrumentsCount;++i)
+				free(ppInstrumentField[i]);
+			free(ppInstrumentField);
+		}
 		
 		apiTraderUser = hqTraderInit(traderApi);
 
 		HqTraderHandler* traderHandler = apiTraderUser->getResponse();
-		traderHandler->setSaveDataExchangeCallback([](CThostFtdcExchangeField** p, int n) {
+		// traderHandler->setSaveDataExchangeCallback([](CThostFtdcExchangeField** p, int n) {
 			// pCtpSaveObj->saveExchanges(p, n);
-		});
+		// });
 
 		traderHandler->setSaveDataInstrumentCallback([](CThostFtdcInstrumentField** p, int n) {
-			// pCtpSaveObj->saveInstruments(p, n);
+			pCtpSaveObj->saveInstruments(p, n);
 		});
 
-		traderHandler->setSaveDataInstrumentStatusCallback([](CThostFtdcInstrumentStatusField** p, int n) {
+		// traderHandler->setSaveDataInstrumentStatusCallback([](CThostFtdcInstrumentStatusField** p, int n) {
 			// pCtpSaveObj->saveInstrumentsStatus(p, n);
-		});		
+		// });		
 
 	} while (false);
 

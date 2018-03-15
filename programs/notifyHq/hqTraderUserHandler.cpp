@@ -99,14 +99,13 @@ void HqTraderHandler::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
     printf("OnRspUserLogin nRequestID=%d bIsLast=%d errorId=%d errorMsg=%s\n", nRequestID, (int)bIsLast, pRspInfo->ErrorID, pRspInfo->ErrorMsg);
     free(msg);
 
-    if(0){
-        CThostFtdcQryInstrumentField requestInstrumentField;
-        memset(&requestInstrumentField, 0, sizeof(CThostFtdcQryInstrumentField));
-        // strcpy(requestInstrumentField.ExchangeID, "CZCE");
-        requestID++;
-        traderApi->ReqQryInstrument(&requestInstrumentField, requestID);
-        printf("CThostFtdcTraderApi::ReqQryInstrument\n");
-    }
+    // 查询所有交易所商品
+    CThostFtdcQryInstrumentField requestInstrumentField;
+    memset(&requestInstrumentField, 0, sizeof(CThostFtdcQryInstrumentField));
+    // strcpy(requestInstrumentField.ExchangeID, "CZCE");
+    requestID++;
+    traderApi->ReqQryInstrument(&requestInstrumentField, requestID);
+    printf("CThostFtdcTraderApi::ReqQryInstrument\n");
 
     // 20180122
     tradingDay = traderApi->GetTradingDay();
