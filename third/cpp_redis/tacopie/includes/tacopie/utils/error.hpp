@@ -26,32 +26,49 @@
 #include <stdexcept>
 #include <string>
 
-#include <tacopie/logger.hpp>
+#include <tacopie/utils/logger.hpp>
 
 namespace tacopie {
 
+//!
+//! specialized runtime_error used for tacopie error
+//!
 class tacopie_error : public std::runtime_error {
 public:
-  //! ctor & dtor
+  //! ctor
   tacopie_error(const std::string& what, const std::string& file, std::size_t line);
+  //! assignment operator
   ~tacopie_error(void) = default;
 
-  //! copy ctor & assignment operator
+  //! copy ctor
   tacopie_error(const tacopie_error&) = default;
+  //! assignment operator
   tacopie_error& operator=(const tacopie_error&) = default;
 
 public:
-  //! get location of the error
+  //!
+  //! \return file in which error occured
+  //!
   const std::string& get_file(void) const;
+
+  //!
+  //! \return line at which the error occured
+  //!
   std::size_t get_line(void) const;
 
 private:
-  //! location of the error
+  //!
+  //! file location of the error
+  //!
   std::string m_file;
+
+  //!
+  //! line location of the error
+  //!
   std::size_t m_line;
 };
 
-} //! tacopie
+} // namespace tacopie
 
 //! macro for convenience
 #define __TACOPIE_THROW(level, what)                          \

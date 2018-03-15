@@ -7,13 +7,13 @@ MY_CFLAGS = -D_WINDOWS -D_DEBUG -DDEBUG -g -Ithird/cpp_redis/includes -Ithird/cp
 # release: -O2
 
 # The linker options.
-MY_LIBS   = 
+MY_LIBS   = -L. -Lthird/ctp/tradeapi64_windows/ -lws2_32 -lthostmduserapi -lthosttraderapi -lhiredis
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall
 
 # The options used in linking as well as in any direct use of ld.
-LDFLAGS   = -L. -Lthird/ctp/tradeapi64_windows/ -lthostmduserapi -lthosttraderapi -lhiredis
+LDFLAGS   =
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.

@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-#include <tacopie/logger.hpp>
+#include <tacopie/utils/logger.hpp>
 
 namespace tacopie {
 
@@ -93,4 +93,4 @@ error(const std::string& msg, const std::string& file, std::size_t line) {
     active_logger->error(msg, file, line);
 }
 
-} //! tacopie
+} // namespace tacopie

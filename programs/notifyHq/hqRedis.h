@@ -21,6 +21,7 @@ public:
 private:
   cpp_redis::client *p_redis_client;
   cpp_redis::subscriber *p_redis_async_client;
+public:
   CtpApiMdUser* apiMdUser;
 };
 

@@ -22,10 +22,14 @@
 
 #pragma once
 
+#ifdef _WIN32
+#pragma comment( lib, "ws2_32.lib")
+#endif /* _WIN32 */
+
 //! utils
-#include <tacopie/error.hpp>
-#include <tacopie/logger.hpp>
-#include <tacopie/typedefs.hpp>
+#include <tacopie/utils/error.hpp>
+#include <tacopie/utils/logger.hpp>
+#include <tacopie/utils/typedefs.hpp>
 
 //! network
 #include <tacopie/network/io_service.hpp>

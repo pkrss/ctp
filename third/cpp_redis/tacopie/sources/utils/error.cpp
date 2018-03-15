@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <tacopie/error.hpp>
+#include <tacopie/utils/error.hpp>
 
 namespace tacopie {
 
@@ -47,4 +47,4 @@ tacopie_error::get_line(void) const {
   return m_line;
 }
 
-} //! tacopie
+} // namespace tacopie
