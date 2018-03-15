@@ -97,7 +97,7 @@ void CtpApiMdUser::handleRegQuoteStk(const char *stkStrings)
 
 	// 订阅行情
     mdapi->SubscribeMarketData(ppInstrumentID, l);
-    printf("CThostFtdcMdApi_SubscribeMarketData\n");
+    printf("CThostFtdcMdApi_SubscribeMarketData,$d\n", l);
 
 	for (i = 0; i < l; i++)
 		free(ppInstrumentID[i]);

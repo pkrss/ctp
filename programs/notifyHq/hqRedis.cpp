@@ -40,9 +40,15 @@ void onRecvDepthMarketDataField(CThostFtdcDepthMarketDataField *pDepthMarketData
 	int timeH = 0, timeM = 0, timeS = 0;
 	if (3 ==sscanf(pDepthMarketData->UpdateTime,"%02d:%02d:%02d", &timeH, &timeM, &timeS)){
 		time_t now = time(0);
-		now /= (24 * 60 * 60 * 1000);
-		now *= (24 * 60 * 60 * 1000);
-		quote["time"] = now + timeH * 60 * 60 * 1000 + timeM * 60 * 1000 + timeS * 1000  + pDepthMarketData->UpdateMillisec;
+		// now += timeH * 60 * 60 + timeM * 60 + timeS;
+
+		tm* tm = gmtime(&now);
+		tm->tm_hour = timeH;
+		tm->tm_min = timeM;
+		tm->tm_sec = timeS;
+		now = mktime(tm);
+
+		quote["time"] = now;  //		+pDepthMarketData->UpdateMillisec;
 	}
 
 	double prevSettlement = pDepthMarketData->PreSettlementPrice;
