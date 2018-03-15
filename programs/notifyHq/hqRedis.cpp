@@ -10,7 +10,7 @@
 #include "../../third/jsoncpp/json.hpp"
 using json = nlohmann::json;
 
-void ctpMdRegQuoteStk(void *p, const char* stks);
+#include "../../impl/ctpApiMd.h"
 
 HqRedis* hqRedis = 0;
 

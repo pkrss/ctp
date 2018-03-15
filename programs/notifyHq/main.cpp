@@ -3,7 +3,6 @@
 #include "../../impl/ctpApiMd.h"
 #include "../../impl/ctpApiMdUser.h"
 #include "../../profile.h"
-#include "../../pgsql.h"
 #include "../../character.h"
 #include "../../dll.h"
 #include "../../impl/utils.h"

@@ -1,10 +1,10 @@
 
-#if defined(_WINDOWS)
-#define INCL_WINSOCK_API_TYPEDEFS 1
-#define WINVER _WIN32_WINNT_WS03
-// #include <Winsock2.h>
-#include <Ws2tcpip.h>
-#endif
+// #if defined(_WINDOWS)
+// #define INCL_WINSOCK_API_TYPEDEFS 1
+// #define WINVER _WIN32_WINNT_WS03
+// // #include <Winsock2.h>
+// #include <Ws2tcpip.h>
+// #endif
 
 #include "../../third/cpp_redis/sources/builders/array_builder.cpp"
 #include "../../third/cpp_redis/sources/builders/builders_factory.cpp"
