@@ -37,6 +37,13 @@ void onRecvDepthMarketDataField(CThostFtdcDepthMarketDataField *pDepthMarketData
 	// quote["sName"] = pDepthMarketData->;
 
 	// quote["time"] = pDepthMarketData->UpdateTime + pDepthMarketData->UpdateMillisec;
+	int timeH = 0, timeM = 0, timeS = 0;
+	if (3 ==sscanf(pDepthMarketData->UpdateTime,"%02d:%02d:%02d", &timeH, &timeM, &timeS)){
+		time_t now = time(0);
+		now /= (24 * 60 * 60 * 1000);
+		now *= (24 * 60 * 60 * 1000);
+		quote["time"] = now + timeH * 60 * 60 * 1000 + timeM * 60 * 1000 + timeS * 1000  + pDepthMarketData->UpdateMillisec;
+	}
 
 	double prevSettlement = pDepthMarketData->PreSettlementPrice;
 	double price = pDepthMarketData->LastPrice;
@@ -61,7 +68,7 @@ void onRecvDepthMarketDataField(CThostFtdcDepthMarketDataField *pDepthMarketData
 	jsonRoot["oper"] = "realtime";
 	jsonRoot["data"] = quote;
 
-	std::string s = jsonRoot;
+	std::string s = jsonRoot.dump();
 	hqRedis->my_redis_tool_publish("stk_quote_changed", s.c_str());
 };
 
