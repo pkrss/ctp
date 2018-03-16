@@ -1,7 +1,7 @@
 #include "hqTraderUserHandler.h"
 #include "hqTraderUser.h"
 #include "hqTrader.h"
-#include "../../utils.h"
+#include "../../profile.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,13 +47,13 @@ void HqTraderHandler::OnFrontConnected(){
     CThostFtdcReqUserLoginField reqUserLoginField;
     memset(&reqUserLoginField, 0, sizeof(reqUserLoginField));
 
-    char *BrokerID = profileGetString("user.brokerID");
+    const char *BrokerID = Profile::getInstance()->getStringCache("user.brokerID");
     strcpy(reqUserLoginField.BrokerID, BrokerID);
 
-    char *UserID = profileGetString("user.userID");
+    const char *UserID = Profile::getInstance()->getStringCache("user.userID");
     strcpy(reqUserLoginField.UserID, UserID);
 
-    char *Password = profileGetString("user.password");
+    const char *Password = Profile::getInstance()->getStringCache("user.password");
     strcpy(reqUserLoginField.Password, Password);
 	/*
 	strcpy(reqUserLoginField.UserProductInfo, "Q7V3 3456");
@@ -65,9 +65,6 @@ void HqTraderHandler::OnFrontConnected(){
     traderApi->ReqUserLogin(&reqUserLoginField, requestID);
     printf("CThostFtdcTraderApi::ReqUserLogin BrokerID=%s, UserID=%s\n", BrokerID, UserID);
 
-    free(BrokerID);
-    free(UserID);
-    free(Password);
 }
 	
 	///当客户端与交易后台通信连接断开时，该方法被调用。当发生这个情况后，API会自动重新连接，客户端可不做处理。

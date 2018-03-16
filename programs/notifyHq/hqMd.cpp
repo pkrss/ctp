@@ -1,5 +1,5 @@
 #include "hqMd.h"
-#include "../../utils.h"
+#include "../../profile.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -9,7 +9,7 @@ HqMdUser* hqMdInit(CThostFtdcMdApi *cMdapi)
     // const char* pszFlowPath = ProfileGetString("data.path");
     // CThostFtdcMdApi *cMdapi = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath);
 
-    char *pszFrontAddress = profileGetString("hq.frontAddress");
+    const char *pszFrontAddress = Profile::getInstance()->getStringCache("hq.frontAddress");
 
     HqMdHandler *spiResponse = new HqMdHandler(cMdapi);
 
@@ -18,11 +18,9 @@ HqMdUser* hqMdInit(CThostFtdcMdApi *cMdapi)
 
     cMdapi->RegisterSpi(spiResponse);
 
-    cMdapi->RegisterFront(pszFrontAddress);
+    cMdapi->RegisterFront((char *)pszFrontAddress);
 
     cMdapi->Init();
-
-    profileFreeString(pszFrontAddress);
 
     return ret;
 }
