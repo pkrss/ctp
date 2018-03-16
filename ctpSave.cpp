@@ -2,7 +2,7 @@
 
 // #include "../../impl/ctpApiMd.h"
 // #include "../../impl/ctpApiTrader.h"
-
+#include "character.h"
 #include "third/jsoncpp/json.hpp"
 // for convenience
 using json = nlohmann::json;
@@ -24,7 +24,7 @@ void ctpSave::saveExchanges(CThostFtdcExchangeField** exchanges, int count) {
 	for (int i = 0; i < count; ++i) {
 		CThostFtdcExchangeField* item = exchanges[i];
 
-		char* name = ExtGbkToUtf8(item->ExchangeName);
+		const char* name = gbk_to_utf8(item->ExchangeName);
 
 		json r = json::object();
 		r["id"] = item->ExchangeID;
@@ -32,7 +32,7 @@ void ctpSave::saveExchanges(CThostFtdcExchangeField** exchanges, int count) {
 		r["property"] = item->ExchangeProperty;
 		j += r;
 
-		free(name);
+		free((void*)name);
 	}
 	std::string content = j.dump();
 
@@ -71,7 +71,7 @@ void ctpSave::saveInstruments(const std::list<CThostFtdcInstrumentField>& instar
 		{
 			const CThostFtdcInstrumentField* item = &(*b);
 
-			char* name = ExtGbkToUtf8(item->InstrumentName);
+			const char* name = gbk_to_utf8(item->InstrumentName);
 
 			json r = json::object();
 			r["id"] = item->InstrumentID;
@@ -105,7 +105,7 @@ void ctpSave::saveInstruments(const std::list<CThostFtdcInstrumentField>& instar
 			r["underlyingMultiple"] = item->UnderlyingMultiple;
 			r["combinationType"] = item->CombinationType;
 
-			free(name);
+			free((void*)name);
 
 			j += r;
 		}
@@ -117,9 +117,48 @@ void ctpSave::saveInstruments(const std::list<CThostFtdcInstrumentField>& instar
 	// }
 }
 
+class JsonOp{
+	private:
+	  json& j;
+	public:
+	JsonOp(json& j2):j(j2){
+
+	}
+
+	// template<class _Ty>
+	// const JsonOp& get(_Ty& left, const char* rightFieldKey){
+	// 	left = (_Ty)j[rightFieldKey];
+	// 	return *this;
+	// }
+
+	// template<class _Ty>
+	JsonOp& get(int& left, const char* rightFieldKey){
+		left = (int)j[rightFieldKey];
+		return *this;
+	}
+
+	JsonOp& get(double& left, const char* rightFieldKey){
+		left = (double)j[rightFieldKey];
+		return *this;
+	}
+
+	// template<>
+	JsonOp& get(char& left, const char* rightFieldKey){
+		left = (unsigned char)j[rightFieldKey];
+		return *this;
+	}
+
+	// template<>
+	JsonOp& get(char* left, const char* rightFieldKey){
+		std::string s = j[rightFieldKey];
+		strcpy(left, s.c_str());
+		return *this;
+	}
+};
+
 std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments(){
 	std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ret;
-	if (!this->readDataFun || !outCount)
+	if (!this->readDataFun)
 		return ret;
 
 	const char *content = 0;
@@ -133,49 +172,53 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 		json j = json::parse(content);
 
 		ret.reset(new std::vector<CThostFtdcInstrumentField>());
-		ret->reserve(j.count());
+		ret->reserve(j.size());
 
+		char name2[64];
 		for (json::iterator b = j.begin(), e=j.end(); b != e; ++b) {
-			json& r = *j;
+
+			JsonOp r(*b);
 
 			CThostFtdcInstrumentField item2;
 			CThostFtdcInstrumentField* item = &item2;
 			memset(item, 0, sizeof(CThostFtdcInstrumentField));
 
-			strcpy(item->InstrumentID, (char*)r["id"]);
+			r.get(item->InstrumentID, "id");			
+			r.get(name2, "name");
 
-			char* name = utf8_to_gbk(r["name"]);
+			const char* name = utf8_to_gbk((const char*)name2);
 			strcpy(item->InstrumentName, name);
-			strcpy(item->ExchangeID, (const char*)(char*)r["exchangeID"]);
-			strcpy(item->ProductID, (const char*)(char*)r["productID"]);
-			item->ProductClass = (unsigned char)r["productClass"];
-			item->DeliveryYear = (int)r["deliveryYear"];
-			item->DeliveryMonth = (int)r["deliveryMonth"];
-			item->MaxMarketOrderVolume = (int)r["maxMarketOrderVolume"];
-			item->MinMarketOrderVolume = (int)r["minMarketOrderVolume"];
-			item->MaxLimitOrderVolume = (int)r["maxLimitOrderVolume"];
-			item->MinLimitOrderVolume = (int)r["minLimitOrderVolume"];
-			item->VolumeMultiple = (int)r["volumeMultiple"];
-			item->PriceTick = (unsigned char)r["priceTick"];
-			strcpy(item->CreateDate, (const char*)(char*)r["createDate"]);
-			strcpy(item->OpenDate, (const char*)(char*)r["openDate"]);
-			strcpy(item->ExpireDate, (const char*)(char*)r["expireDate"]);
-			strcpy(item->StartDelivDate, (const char*)(char*)r["startDelivDate"]);
-			strcpy(item->EndDelivDate, (const char*)(char*)r["endDelivDate"]);
-			item->InstLifePhase = (unsigned char)r["instLifePhase"];
-			item->IsTrading = (int)r["isTrading"];
-			item->PositionType = (unsigned char)r["positionType"];
-			item->PositionDateType = (unsigned char)r["positionDateType"];
-			item->LongMarginRatio = (double)r["longMarginRatio"];
-			item->ShortMarginRatio = (double)r["shortMarginRatio"];
-			item->MaxMarginSideAlgorithm = (unsigned char)r["maxMarginSideAlgorithm"];
-			strcpy(item->UnderlyingInstrID, (const char*)(char*)r["underlyingInstrID"]);
-			item->StrikePrice = (double)r["strikePrice"];
-			item->OptionsType = (unsigned char)r["optionsType"];
-			item->UnderlyingMultiple = (double)r["underlyingMultiple"];
-			item->CombinationType = (unsigned char)r["combinationType"];
 
-			free(name);
+			r.get(item->ExchangeID, "exchangeID")
+				.get(item->ProductID, "productID")
+				.get(item->ProductClass,"productClass")
+				.get(item->DeliveryYear, "deliveryYear")
+				.get(item->DeliveryMonth, "deliveryMonth")
+				.get(item->MaxMarketOrderVolume, "maxMarketOrderVolume")
+				.get(item->MinMarketOrderVolume, "minMarketOrderVolume")
+				.get(item->MaxLimitOrderVolume, "maxLimitOrderVolume")
+				.get(item->MinLimitOrderVolume, "minLimitOrderVolume")
+				.get(item->VolumeMultiple, "volumeMultiple")
+				.get(item->PriceTick, "priceTick")
+				.get(item->CreateDate, "createDate")
+				.get(item->OpenDate, "openDate")
+				.get(item->ExpireDate, "expireDate")
+				.get(item->StartDelivDate, "startDelivDate")
+				.get(item->EndDelivDate, "endDelivDate")
+				.get(item->InstLifePhase, "instLifePhase")
+				.get(item->IsTrading, "isTrading")
+				.get(item->PositionType, "positionType")
+				.get(item->PositionDateType, "positionDateType")
+				.get(item->LongMarginRatio, "longMarginRatio")
+				.get(item->ShortMarginRatio, "shortMarginRatio")
+				.get(item->MaxMarginSideAlgorithm, "maxMarginSideAlgorithm")
+				.get(item->UnderlyingInstrID, "underlyingInstrID")
+				.get(item->StrikePrice, "strikePrice")
+				.get(item->OptionsType, "optionsType")
+				.get(item->UnderlyingMultiple, "underlyingMultiple")
+				.get(item->CombinationType, "combinationType");
+
+			free((char*)name);
 
 			ret->push_back(item2);
 		}

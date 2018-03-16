@@ -3,6 +3,7 @@
 #include "third/jsoncpp/json.hpp"
 #include "utils.h"
 #include <fstream>
+#include <list>
 
 // for convenience
 using json = nlohmann::json;

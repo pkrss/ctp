@@ -1,6 +1,5 @@
 #include "instrumentsOp.h"
 #include "recordsMem.h"
-#include "utils.h"
 #include <set>
 #include <list>
 #include "third/ctp/ThostFtdcUserApiStruct.h"
