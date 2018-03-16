@@ -124,8 +124,6 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 
 	const char *content = 0;
 
-	int count = 0;
-
 	do{
 		content = this->readDataFun("futuresInstruments", 0);
 
@@ -144,12 +142,12 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 			CThostFtdcInstrumentField* item = &item2;
 			memset(item, 0, sizeof(CThostFtdcInstrumentField));
 
-			strcpy(item->InstrumentID, r["id"]);
+			strcpy(item->InstrumentID, (char*)r["id"]);
 
 			char* name = utf8_to_gbk(r["name"]);
 			strcpy(item->InstrumentName, name);
-			strcpy(item->ExchangeID, r["exchangeID"]);
-			strcpy(item->ProductID, r["productID"]);
+			strcpy(item->ExchangeID, (const char*)r["exchangeID"]);
+			strcpy(item->ProductID, (const char*)r["productID"]);
 			item->ProductClass = r["productClass"];
 			item->DeliveryYear = r["deliveryYear"];
 			item->DeliveryMonth = r["deliveryMonth"];
@@ -159,11 +157,11 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 			item->MinLimitOrderVolume = r["minLimitOrderVolume"];
 			item->VolumeMultiple = r["volumeMultiple"];
 			item->PriceTick = r["priceTick"];
-			strcpy(item->CreateDate, r["createDate"]);
-			strcpy(item->OpenDate, r["openDate"]);
-			strcpy(item->ExpireDate, r["expireDate"]);
-			strcpy(item->StartDelivDate, r["startDelivDate"]);
-			strcpy(item->EndDelivDate, r["endDelivDate"]);
+			strcpy(item->CreateDate, (const char*)r["createDate"]);
+			strcpy(item->OpenDate, (const char*)r["openDate"]);
+			strcpy(item->ExpireDate, (const char*)r["expireDate"]);
+			strcpy(item->StartDelivDate, (const char*)r["startDelivDate"]);
+			strcpy(item->EndDelivDate, (const char*)r["endDelivDate"]);
 			item->InstLifePhase = r["instLifePhase"];
 			item->IsTrading = r["isTrading"];
 			item->PositionType = r["positionType"];
@@ -175,11 +173,11 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 			item->StrikePrice = r["strikePrice"];
 			item->OptionsType = r["optionsType"];
 			item->UnderlyingMultiple = r["underlyingMultiple"];
-			item->CombinationType = r["combinationType"];
+			item->CombinationType = (char)r["combinationType"];
 
 			free(name);
 
-			ret->push_back(item);
+			ret->push_back(item2);
 		}
 
 	} while (false);
@@ -205,13 +203,13 @@ void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentStatusFi
 		CThostFtdcInstrumentStatusField* item = &(*b);
 
 		std::string exchangeId = item->ExchangeID;
-		E2IMAP::iterator b = exchange2Instruments.find(exchangeId);
-		if (b == exchange2Instruments.end()) {
+		E2IMAP::iterator b2 = exchange2Instruments.find(exchangeId);
+		if (b2 == exchange2Instruments.end()) {
 			exchange2Instruments.insert(std::make_pair(exchangeId, std::list<CThostFtdcInstrumentStatusField*>()));
-			b = exchange2Instruments.find(item->ExchangeID);
+			b2 = exchange2Instruments.find(item->ExchangeID);
 		}
 
-		b->second.push_back(item);
+		b2->second.push_back(item);
 	}
 
 	for (E2IMAP::const_iterator b = exchange2Instruments.begin(), e = exchange2Instruments.end(); b != e; ++b) {

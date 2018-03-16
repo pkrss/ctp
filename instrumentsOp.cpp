@@ -7,7 +7,7 @@
 #include <algorithm>
 
 void CInstrumentsOp::resetAll(){
-  CInstrumentsOp* self;
+  CInstrumentsOp* self = this;
   RecordsMem<CThostFtdcInstrumentField>::getInstance()->runAllItem([&](const std::list<CThostFtdcInstrumentField>& items){
     if(items.empty())
       return;
