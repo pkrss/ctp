@@ -96,6 +96,7 @@ void HqMdUser::handleRegQuoteStk(const char *stkStrings)
     // printf("CThostFtdcMdApi_SubscribeForQuoteRsp\n");
 
 	// 订阅行情
+    //  mdapi->UnSubscribeMarketData()
     mdapi->SubscribeMarketData(ppInstrumentID, l);
     printf("CThostFtdcMdApi_SubscribeMarketData,$d\n", l);
 

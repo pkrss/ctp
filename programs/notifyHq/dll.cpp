@@ -1,4 +1,5 @@
 ﻿// #include "../build.cc"
+#include "dll.h"
 #include "../../ext.h"
 #include "hqMd.h"
 #include "hqMdUser.h"
@@ -11,8 +12,9 @@
 #include <iostream>
 #include <string.h> // strdup
 
-#include "hqRedis.h"
 #include "fileSave.h"
+#include "../../recordsMem.h"
+#include "../../ctpSave.h"
 
 #if defined(_MSC_VER)
 #define My_DLLEXP __declspec(dllimport)
@@ -24,8 +26,13 @@ typedef My_DLLEXP  CThostFtdcTraderApi*(*FunCreateFtdcTraderApi)(const char *psz
 typedef My_DLLEXP  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath, const bool bIsUsingUdp, const bool bIsMulticast);
 
 ctpSave* pCtpSaveObj = 0;
+void* soMd = 0;
+void* soTrader = 0;
+std::unique_ptr<ctpSave> ctpSaveObj;
+HqMdUser* apiMdUser = 0;
+HqTraderUser* apiTraderUser = 0;
 
-int main() {
+int my_ctp_init(){
 
 // #if defined(_WIN32) || defined(_WINDOWS)
 //   //! Windows netword DLL init
@@ -40,11 +47,7 @@ int main() {
 
 	Profile::getInstance()->init("go/conf/config.json");
 	
-	void* soMd = 0;
-	void* soTrader = 0;
-
-
-	std::unique_ptr<ctpSave> ctpSaveObj(new ctpSave());
+	ctpSaveObj.reset(new ctpSave());
 	pCtpSaveObj = ctpSaveObj.get();
 	pCtpSaveObj->SetSaveDataFun([](const char* name, long id, const char* content) {
 		if(!name || !*name || !content)
@@ -79,11 +82,6 @@ int main() {
 
 		return myFileRead(path);
 	});
-
-	HqMdUser* apiMdUser = 0;
-	HqTraderUser* apiTraderUser = 0;
-
-	HqRedis *hqRedis = 0;
 
 	do {
 		soMd = so_open("thostmduserapi");
@@ -122,15 +120,6 @@ int main() {
 		}
 
 		apiMdUser = hqMdInit(mdApi);
-
-		const char *redisIp = Profile::getInstance()->getStringCache("MY_REDIS_IP", "127.0.0.1");
-		const char *redisPort = Profile::getInstance()->getStringCache("MY_REDIS_PORT", "6379");
-		const char *redisPassword = Profile::getInstance()->getStringCache("MY_REDIS_PASSWORD", "");
-		const char *redisDbNum = Profile::getInstance()->getStringCache("MY_REDIS_DBNUM", "0");
-
-		hqRedis = new HqRedis(apiMdUser);
-
-		hqRedis->start(redisIp, atoi(redisPort), redisPassword, atoi(redisDbNum));
 	} while (false);
 	
 
@@ -172,15 +161,8 @@ int main() {
 
 		int instrumentsCount = 0;
 		CThostFtdcInstrumentField** ppInstrumentField = pCtpSaveObj->readInstruments(&instrumentsCount);
-		if(ppInstrumentField && instrumentsCount>0){
-			
-		}
-		if(ppInstrumentField){
-			for (int i = 0; i < instrumentsCount;++i)
-				free(ppInstrumentField[i]);
-			free(ppInstrumentField);
-		}
-		
+		RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(ppInstrumentField, instrumentsCount);
+
 		apiTraderUser = hqTraderInit(traderApi);
 
 		HqTraderHandler* traderHandler = apiTraderUser->getResponse();
@@ -188,8 +170,9 @@ int main() {
 			// pCtpSaveObj->saveExchanges(p, n);
 		// });
 
-		traderHandler->setSaveDataInstrumentCallback([](CThostFtdcInstrumentField** p, int n) {
-			pCtpSaveObj->saveInstruments(p, n);
+		traderHandler->setSaveDataInstrumentCallback(const std::list<CThostFtdcInstrumentField>& p) {
+			RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(p);
+			pCtpSaveObj->saveInstruments(p);
 		});
 
 		// traderHandler->setSaveDataInstrumentStatusCallback([](CThostFtdcInstrumentStatusField** p, int n) {
@@ -198,8 +181,16 @@ int main() {
 
 	} while (false);
 
+	return 0;
+}
+
+int my_ctp_loop(){
 	if(apiMdUser)
 		hqMdWait(apiMdUser);
+	return 0;
+}
+
+int my_ctp_uninit(){
 
 	if (hqRedis) {
 		hqRedis->stop();
@@ -232,6 +223,20 @@ int main() {
 	Profile::Destroy();
 
 	return 0;
+}
+
+
+RealtimeQuoteNotifyCallback realtimeQuoteNotifyCallback = 0;
+void onRecvDepthMarketDataField(const char *pDepthMarketData) {	
+	
+	if (!pDepthMarketData || !(*pDepthMarketData) || !realtimeQuoteNotifyCallback)
+		return;
+
+	realtimeQuoteNotifyCallback(pDepthMarketData);
+}
+
+void setRealtimeQuoteNotifyCallback(NotifyStringCallback cb){
+	apiMdUser->setCallback_RtnDepthMarketData((void*)onRecvDepthMarketDataField);
 }
 
 char* ExtProfileGetString(char* key) {

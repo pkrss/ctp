@@ -3,7 +3,7 @@
 #include "../../third/jsoncpp/json.hpp"
 #include "../../third/ctp/ThostFtdcUserApiStruct.h"
 
-#include "hqMdUser.h"
+#include "../notifyHq/hqMdUser.h"
 
 #include "../../third/cpp_redis/includes/cpp_redis/cpp_redis"
 
@@ -13,74 +13,19 @@ using json = nlohmann::json;
 
 HqRedis* hqRedis = 0;
 
-void onRecvDepthMarketDataField(CThostFtdcDepthMarketDataField *pDepthMarketData) {	
-	if (!hqRedis || !hqRedis->apiMdUser)
+void onRecvDepthMarketDataField(const char *pDepthMarketData) {	
+	if (!pDepthMarketData || !(*pDepthMarketData) || !hqRedis || !hqRedis->apiMdUser)
 		return;
 
-	json quote;
-	quote["id"] = pDepthMarketData->InstrumentID;
-	// quote["name"] = rspRowCols[0]
-	quote["open"] = pDepthMarketData->OpenPrice;
-	quote["high"] = pDepthMarketData->HighestPrice;
-	quote["low"] = pDepthMarketData->LowestPrice;
-	quote["prevClose"] = pDepthMarketData->PreClosePrice;
-	quote["buy1"] = pDepthMarketData->BidPrice1;
-	quote["sell1"] = pDepthMarketData->AskPrice1;
-	quote["price"] = pDepthMarketData->LastPrice;
-	quote["settlement"] = pDepthMarketData->SettlementPrice;
-	quote["prevSettlement"] = pDepthMarketData->PreSettlementPrice;
-	quote["buy1vol"] = pDepthMarketData->BidVolume1;
-	quote["sell1vol"] = pDepthMarketData->AskVolume1;
-
-	// quote["exSName"] = pDepthMarketData->;
-	// quote["sName"] = pDepthMarketData->;
-
-	// quote["time"] = pDepthMarketData->UpdateTime + pDepthMarketData->UpdateMillisec;
-	int timeH = 0, timeM = 0, timeS = 0;
-	if (3 ==sscanf(pDepthMarketData->UpdateTime,"%02d:%02d:%02d", &timeH, &timeM, &timeS)){
-		time_t now = time(0);
-		// now += timeH * 60 * 60 + timeM * 60 + timeS;
-
-		tm* tm = gmtime(&now);
-		tm->tm_hour = timeH;
-		tm->tm_min = timeM;
-		tm->tm_sec = timeS;
-		now = mktime(tm);
-
-		quote["time"] = now;  //		+pDepthMarketData->UpdateMillisec;
-	}
-
-	double prevSettlement = pDepthMarketData->PreSettlementPrice;
-	double price = pDepthMarketData->LastPrice;
-
-	if(prevSettlement == 0)
-	{
-		prevSettlement = pDepthMarketData->OpenPrice;
-	}
-
-	quote["updnPrice"] = price - prevSettlement;
-	if (prevSettlement > 0)
-	{
-		quote["updnPricePer"] = ((price-prevSettlement)*100.0f/prevSettlement)+0.0000005;
-	}
-	else
-	{
-		// quote["updnPricePer"] = nil
-	}
-	
-	json jsonRoot;
-	jsonRoot["cat"] = "quote";
-	jsonRoot["oper"] = "realtime";
-	jsonRoot["data"] = quote;
-
-	std::string s = jsonRoot.dump();
-	hqRedis->my_redis_tool_publish("stk_quote_changed", s.c_str());
+	hqRedis->my_redis_tool_publish("stk_quote_changed", pDepthMarketData);
 };
 
  void onRecvHqStkChanged(const std::string& chan, const std::string& msg) {
 
 	if (!hqRedis || !hqRedis->apiMdUser)
 		return;
+
+	// RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(p, n);
 
 	hqRedis->apiMdUser->RegQuoteStk(msg.c_str());
 }

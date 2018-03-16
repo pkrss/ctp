@@ -8,27 +8,32 @@
 template<class Ty>
 class CSaveDataHelper
 {
+public:	
+	typedef std::list<Ty> DATALIST;
+	typedef void(*FUNSAVEDATA)(const DATALIST&);
+private:
+
+	DATALIST dataList;
+
+	std::mutex dataMutex;
+
+	FUNSAVEDATA saveChangeCallback;
   public:
-	  typedef std::list<std::unique_ptr<Ty> > DATALIST;
-	  typedef void(*FUNSAVEDATA)(Ty**, int);
 
 	  CSaveDataHelper() {
 		  saveChangeCallback = 0;
 	  }
 
 	  void addItem(Ty *pItem) {
-		  Ty* r = new Ty();
-		  *r = *pItem;
-
 		  dataMutex.lock();
-		  dataList.push_back(typename DATALIST::value_type(r));
+		  dataList.push_back(typename DATALIST::value_type(*pItem));
 		  dataMutex.unlock();
 	  }
 	  void saveAll(){
 		  DATALIST dataList;
 
 		  dataMutex.lock();
-		  if (this->dataList.size() == 0) {
+		  if (this->dataList.empty()) {
 			  dataMutex.unlock();
 			  return;
 		  }
@@ -38,27 +43,11 @@ class CSaveDataHelper
 		  if (!this->saveChangeCallback)
 			  return;
 
-		  int cnt = dataList.size();
-		  Ty** datas = (Ty**)malloc(sizeof(Ty*) * cnt);
-
-		  int i = 0;
-		  for (typename DATALIST::const_iterator b = dataList.begin(), e = dataList.end(); b != e; ++b, ++i) {
-			  datas[i] = b->get();
-		  }
-
-		  (*this->saveChangeCallback)(datas, cnt);
-		  free(datas);
+		  (*this->saveChangeCallback)(dataList);
 	  }
 	  void setSaveChangeCallback(FUNSAVEDATA saveChangeCallback){
 		  this->saveChangeCallback = saveChangeCallback;
 	  }
-private:
-
-	DATALIST dataList;
-
-	std::mutex dataMutex;
-
-	FUNSAVEDATA saveChangeCallback;
 };
 
 #endif

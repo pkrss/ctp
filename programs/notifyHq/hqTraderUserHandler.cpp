@@ -10,7 +10,7 @@ HqTraderHandler::HqTraderHandler(CThostFtdcTraderApi *traderApi)
 {
     requestID = 0;
     this->traderApi = traderApi;
-    tradingDay = 0;
+    // tradingDay = 0;
 }
 
 void HqTraderHandler::setApi(HqTraderUser* api){
@@ -108,17 +108,27 @@ void HqTraderHandler::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
     printf("CThostFtdcTraderApi::ReqQryInstrument\n");
 
     // 20180122
-    tradingDay = traderApi->GetTradingDay();
-    printf("CThostFtdcTraderApi::GetTradingDay()=%s\n", tradingDay);
+    // tradingDay = traderApi->GetTradingDay();
+    // printf("CThostFtdcTraderApi::GetTradingDay()=%s\n", tradingDay);
+
+    // CThostFtdcQryDepthMarketDataField qryDepthMarketData;
+
+    // traderApi->ReqQryDepthMarketData(CThostFtdcQryDepthMarketDataField * pQryDepthMarketData, int nRequestID);
+
+    // CThostFtdcQryInvestorPositionCombineDetailField qryInvestorPositionCombineDetail, int nRequestID;
+    // traderApi->ReqQryInvestorPositionCombineDetail(qryInvestorPositionCombineDetail, int nRequestID);
+
+    // traderApi->ReqQryNotice(); 
+    // traderApi->ReqQryBulletin(); 
     
 
-    if(0){
-        CThostFtdcQryExchangeField qryExchangeField;
-        memset(&qryExchangeField, 0, sizeof(CThostFtdcQryExchangeField));
-        requestID++;
-        traderApi->ReqQryExchange(&qryExchangeField, requestID);
-        printf("CThostFtdcTraderApi::ReqQryExchange(ExchangeID=%s)\n", qryExchangeField.ExchangeID);
-    }    
+    // if(0){
+    //     CThostFtdcQryExchangeField qryExchangeField;
+    //     memset(&qryExchangeField, 0, sizeof(CThostFtdcQryExchangeField));
+    //     requestID++;
+    //     traderApi->ReqQryExchange(&qryExchangeField, requestID);
+    //     printf("CThostFtdcTraderApi::ReqQryExchange(ExchangeID=%s)\n", qryExchangeField.ExchangeID);
+    // }    
 
     if(!pRspInfo->ErrorID){
         if(api){

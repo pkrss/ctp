@@ -41,9 +41,9 @@ void ctpSave::saveExchanges(CThostFtdcExchangeField** exchanges, int count) {
 	this->saveDataFun("futuresExchanges", 0, content.c_str());
 }
 
-void ctpSave::saveInstruments(CThostFtdcInstrumentField** instaruments, int count) {
+void ctpSave::saveInstruments(const std::list<CThostFtdcInstrumentField>& instaruments) {
 
-	if (!this->saveDataFun || !instaruments || !count)
+	if (!this->saveDataFun || instaruments.empty())
 		return;
 
 	// typedef std::map<std::string, std::list<CThostFtdcInstrumentField*> > E2IMAP;
@@ -69,7 +69,9 @@ void ctpSave::saveInstruments(CThostFtdcInstrumentField** instaruments, int coun
 	// 	for (std::list<CThostFtdcInstrumentField*>::const_iterator b2 = b->second.begin(), e2 = b->second.end(); b2 != e2; ++b2) {
 	// 		CThostFtdcInstrumentField* item = *b2;
 
-		for (int i = 0; i < count;++i){
+		for (auto b = instaruments.begin(), e = instaruments.end(); b != e;++b)
+		{
+			const CThostFtdcInstrumentField* item = &(*b);
 
 			char* name = ExtGbkToUtf8(item->InstrumentName);
 
@@ -117,15 +119,14 @@ void ctpSave::saveInstruments(CThostFtdcInstrumentField** instaruments, int coun
 	// }
 }
 
-CThostFtdcInstrumentField** ctpSave::readInstruments(int* outCount){
+std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments(){
+	std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ret;
 	if (!this->readDataFun || !outCount)
-		return;
+		return ret;
 
 	const char *content = 0;
 
 	int count = 0;
-
-	CThostFtdcInstrumentField **ret = 0;
 
 	do{
 		content = this->readDataFun("futuresInstruments", 0);
@@ -135,7 +136,8 @@ CThostFtdcInstrumentField** ctpSave::readInstruments(int* outCount){
 
 		json j = json::parse(content);
 
-		ret = malloc(sizeof(CThostFtdcInstrumentField*) * j.count());
+		ret.reset(new std::vector<CThostFtdcInstrumentField>());
+		ret->reserve(j.count());
 
 		for (json::iterator b = j.begin(), e=j.end(); b != e; ++b) {
 			json& r = *j;
@@ -178,13 +180,10 @@ CThostFtdcInstrumentField** ctpSave::readInstruments(int* outCount){
 
 			free(name);
 
-			ret[count] = item;
-			++count;
+			ret->push_back(item);
 		}
 
 	} while (false);
-
-	*outCount = count;
 
 	if(content){
 		free(content);
@@ -194,16 +193,17 @@ CThostFtdcInstrumentField** ctpSave::readInstruments(int* outCount){
 	return ret;
 }
 
-void ctpSave::saveInstrumentsStatus(CThostFtdcInstrumentStatusField** instarumentsStatus, int count) {
+void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentField>& instaruments) {
 
-	if (!this->saveDataFun || !instarumentsStatus || !count)
+	if (!this->saveDataFun || instaruments.empty())
 		return;
 
 	typedef std::map<std::string, std::list<CThostFtdcInstrumentStatusField*> > E2IMAP;
 	E2IMAP exchange2Instruments;
 
-	for (int i = 0; i < count; ++i) {
-		CThostFtdcInstrumentStatusField* item = instarumentsStatus[i];
+	for (auto b = instaruments.begin(), e = instaruments.end(); b != e;++b)
+	{
+		CThostFtdcInstrumentStatusField* item = &(*b);
 
 		std::string exchangeId = item->ExchangeID;
 		E2IMAP::iterator b = exchange2Instruments.find(exchangeId);

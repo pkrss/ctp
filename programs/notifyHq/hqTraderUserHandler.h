@@ -14,7 +14,7 @@ class HqTraderHandler : public CThostFtdcTraderSpi
     int requestID;
     CThostFtdcTraderApi *traderApi;
     HqTraderUser* api;
-	const char* tradingDay;
+	// const char* tradingDay;
 
 	std::unique_ptr<CSaveDataHelper<CThostFtdcInstrumentField> > saveDataInstrumentHelper;
 	std::unique_ptr<CSaveDataHelper<CThostFtdcExchangeField> > saveDataExchangeHelper;
