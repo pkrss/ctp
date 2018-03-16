@@ -146,34 +146,34 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 
 			char* name = utf8_to_gbk(r["name"]);
 			strcpy(item->InstrumentName, name);
-			strcpy(item->ExchangeID, (const char*)r["exchangeID"]);
-			strcpy(item->ProductID, (const char*)r["productID"]);
-			item->ProductClass = r["productClass"];
-			item->DeliveryYear = r["deliveryYear"];
-			item->DeliveryMonth = r["deliveryMonth"];
-			item->MaxMarketOrderVolume = r["maxMarketOrderVolume"];
-			item->MinMarketOrderVolume = r["minMarketOrderVolume"];
-			item->MaxLimitOrderVolume = r["maxLimitOrderVolume"];
-			item->MinLimitOrderVolume = r["minLimitOrderVolume"];
-			item->VolumeMultiple = r["volumeMultiple"];
-			item->PriceTick = r["priceTick"];
-			strcpy(item->CreateDate, (const char*)r["createDate"]);
-			strcpy(item->OpenDate, (const char*)r["openDate"]);
-			strcpy(item->ExpireDate, (const char*)r["expireDate"]);
-			strcpy(item->StartDelivDate, (const char*)r["startDelivDate"]);
-			strcpy(item->EndDelivDate, (const char*)r["endDelivDate"]);
-			item->InstLifePhase = r["instLifePhase"];
-			item->IsTrading = r["isTrading"];
-			item->PositionType = r["positionType"];
-			item->PositionDateType = r["positionDateType"];
-			item->LongMarginRatio = r["longMarginRatio"];
-			item->ShortMarginRatio = r["shortMarginRatio"];
-			item->MaxMarginSideAlgorithm = r["maxMarginSideAlgorithm"];
-			item->UnderlyingInstrID = r["underlyingInstrID"];
-			item->StrikePrice = r["strikePrice"];
-			item->OptionsType = r["optionsType"];
-			item->UnderlyingMultiple = r["underlyingMultiple"];
-			item->CombinationType = (char)r["combinationType"];
+			strcpy(item->ExchangeID, (const char*)(char*)r["exchangeID"]);
+			strcpy(item->ProductID, (const char*)(char*)r["productID"]);
+			item->ProductClass = (unsigned char)r["productClass"];
+			item->DeliveryYear = (int)r["deliveryYear"];
+			item->DeliveryMonth = (int)r["deliveryMonth"];
+			item->MaxMarketOrderVolume = (int)r["maxMarketOrderVolume"];
+			item->MinMarketOrderVolume = (int)r["minMarketOrderVolume"];
+			item->MaxLimitOrderVolume = (int)r["maxLimitOrderVolume"];
+			item->MinLimitOrderVolume = (int)r["minLimitOrderVolume"];
+			item->VolumeMultiple = (int)r["volumeMultiple"];
+			item->PriceTick = (unsigned char)r["priceTick"];
+			strcpy(item->CreateDate, (const char*)(char*)r["createDate"]);
+			strcpy(item->OpenDate, (const char*)(char*)r["openDate"]);
+			strcpy(item->ExpireDate, (const char*)(char*)r["expireDate"]);
+			strcpy(item->StartDelivDate, (const char*)(char*)r["startDelivDate"]);
+			strcpy(item->EndDelivDate, (const char*)(char*)r["endDelivDate"]);
+			item->InstLifePhase = (unsigned char)r["instLifePhase"];
+			item->IsTrading = (int)r["isTrading"];
+			item->PositionType = (unsigned char)r["positionType"];
+			item->PositionDateType = (unsigned char)r["positionDateType"];
+			item->LongMarginRatio = (double)r["longMarginRatio"];
+			item->ShortMarginRatio = (double)r["shortMarginRatio"];
+			item->MaxMarginSideAlgorithm = (unsigned char)r["maxMarginSideAlgorithm"];
+			strcpy(item->UnderlyingInstrID, (const char*)(char*)r["underlyingInstrID"]);
+			item->StrikePrice = (double)r["strikePrice"];
+			item->OptionsType = (unsigned char)r["optionsType"];
+			item->UnderlyingMultiple = (double)r["underlyingMultiple"];
+			item->CombinationType = (unsigned char)r["combinationType"];
 
 			free(name);
 
@@ -200,7 +200,7 @@ void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentStatusFi
 
 	for (auto b = instaruments.begin(), e = instaruments.end(); b != e;++b)
 	{
-		CThostFtdcInstrumentStatusField* item = &(*b);
+		CThostFtdcInstrumentStatusField* item = (CThostFtdcInstrumentStatusField*)&(*b);
 
 		std::string exchangeId = item->ExchangeID;
 		E2IMAP::iterator b2 = exchange2Instruments.find(exchangeId);
