@@ -30,7 +30,7 @@
 
     "codegnuglobal.executable": "D:/develop/glo662wb/bin/global.exe",
 
-    "workbench.colorTheme": "One Dark Pro", // 主题
+    // "workbench.colorTheme": "One Dark Pro", // 主题
     
     "files.autoGuessEncoding": true, // 启用后，会在打开文件时尝试猜测字符集编码
 }
