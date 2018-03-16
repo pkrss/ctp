@@ -2,35 +2,37 @@
 #define __MY_RECORDS_MEM_H__
 
 #include <shared_mutex>
-#include <vector>
+#include <list>
+#include <functional>
+
 
 template<class _Ty>
 class RecordsMem{
 public:    
-	typedef std::list<Ty> DATALIST;
+	typedef std::list<_Ty> DATALIST;
 private:
   DATALIST dataList;
-  std::shared_mutex                       mutex;
+  std::shared_mutex                       m;
 
-  CHqRecordsMem()
+  RecordsMem()
   {      
   }
 public:
-    static CHqRecordsMem* getInstance(){
-        static CHqRecordsMem m;
+    static RecordsMem* getInstance(){
+        static RecordsMem m;
         return &m;
     }
   void resetAll(const DATALIST& p){
-      mutex.lock();
+      m.lock();
       dataList.clear();
-      dataList.assign(p)
-      mutex.unlock();
+      dataList.assign(p);
+      m.unlock();
   }
 
-  void runAllItem(std::function<const DATALIST&> f){
-      mutex.lock_shared();
+  void runAllItem(std::function<void(const DATALIST&)> f){
+      m.lock_shared();
       f(dataList);
-      mutex.unlock_shared();
+      m.unlock_shared();
   }
 };
 

@@ -4,14 +4,16 @@
 #include <set>
 #include <list>
 #include "third/ctp/ThostFtdcUserApiStruct.h"
+#include <algorithm>
 
 void CInstrumentsOp::resetAll(){
-  RecordsMem<CThostFtdcInstrumentField>::getInstance()->runAllItem(std::bind2nd([](const std::list<CThostFtdcInstrumentField>& items,CInstrumentsOp* self){
+  CInstrumentsOp* self;
+  RecordsMem<CThostFtdcInstrumentField>::getInstance()->runAllItem([&](const std::list<CThostFtdcInstrumentField>& items){
     if(items.empty())
       return;
     
     
-  }, this));
+  });
 }
 
 std::string CInstrumentsOp::getAllStks(const char *stk){

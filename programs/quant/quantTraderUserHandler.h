@@ -1,20 +1,35 @@
-#if !defined(__CTPAPI_TRADERUSER_HANDLER_H__)
-#define __CTPAPI_TRADERUSER_HANDLER_H__
+#if !defined(__Hq_TRADERUSER_HANDLER_H__)
+#define __Hq_TRADERUSER_HANDLER_H__
 
-#include "../h/ThostFtdcTraderApi.h"
+#include "../../third/ctp/ThostFtdcTraderApi.h"
+#include "../../saveDataHelper.h"
 
-class CtpApiTraderUser;
+class QuantTraderUser;
 
 
-class CTraderHandler : public CThostFtdcTraderSpi
+class QuantTraderHandler : public CThostFtdcTraderSpi
 {
 
   private:
     int requestID;
     CThostFtdcTraderApi *traderApi;
-	const char* tradingDay;
+    QuantTraderUser* api;
+	// const char* tradingDay;
+
+	std::unique_ptr<CSaveDataHelper<CThostFtdcInstrumentField> > saveDataInstrumentHelper;
+	std::unique_ptr<CSaveDataHelper<CThostFtdcExchangeField> > saveDataExchangeHelper;
+	std::unique_ptr<CSaveDataHelper<CThostFtdcInstrumentStatusField> > saveDataInstrumentStatusHelper;
 
   public:
+    QuantTraderHandler(CThostFtdcTraderApi *traderApi);
+
+    void setApi(QuantTraderUser* api);
+
+	void setSaveDataInstrumentCallback(CSaveDataHelper<CThostFtdcInstrumentField>::FUNSAVEDATA callback);
+	void setSaveDataExchangeCallback(CSaveDataHelper<CThostFtdcExchangeField>::FUNSAVEDATA callback);
+	void setSaveDataInstrumentStatusCallback(CSaveDataHelper<CThostFtdcInstrumentStatusField>::FUNSAVEDATA callback);
+
+	int plusRequestId();
 
     ///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 	virtual void OnFrontConnected();

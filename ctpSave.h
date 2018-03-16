@@ -18,7 +18,7 @@ public:
 	void saveExchanges(CThostFtdcExchangeField** exchanges, int count);
 	std::shared_ptr<std::vector<CThostFtdcInstrumentField>> readInstruments();
 	void saveInstruments(const std::list<CThostFtdcInstrumentField>& instaruments);
-	void saveInstrumentsStatus(CThostFtdcInstrumentStatusField** instarumentsStatus, int count);
+	void saveInstrumentsStatus(const std::list<CThostFtdcInstrumentStatusField>& instaruments);
 private:
 	SaveDataFun saveDataFun;
 	ReadDataFun readDataFun;

@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <string.h>
+#include <stdio.h>
 
 void myFileWrite(const char *path, const char *content){
 	std::ofstream of(path, std::ofstream::binary);
@@ -23,7 +25,7 @@ const char *myFileRead(const char *path){
 		infile.seekg(0);
 
 		// allocate memory for file content
-		buffer = malloc(size * sizeof(char));
+		buffer = (char*)malloc(size * sizeof(char));
 
 		// read content of infile
 		infile.read(buffer, size);

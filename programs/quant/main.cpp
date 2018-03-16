@@ -1,16 +1,20 @@
 ﻿// #include "../build.cc"
-#include "../../impl/ext.h"
-#include "../../impl/ctpApiMd.h"
-#include "../../impl/ctpApiMdUser.h"
-#include "../../impl/ctpApiTrader.h"
-#include "../../impl/ctpApiTraderUser.h"
+#include "dll.h"
+#include "../../ext.h"
+#include "quantMd.h"
+#include "quantMdUser.h"
+#include "quantTrader.h"
+#include "quantTraderUser.h"
 #include "../../profile.h"
-#include "../../pgsql.h"
 #include "../../character.h"
 #include "../../dll.h"
-#include "../../impl/utils.h"
+#include "../../utils.h"
 #include <iostream>
 #include <string.h> // strdup
+
+#include "fileSave.h"
+#include "../../recordsMem.h"
+#include "../../ctpSave.h"
 
 #if defined(_MSC_VER)
 #define My_DLLEXP __declspec(dllimport)
@@ -18,29 +22,22 @@
 #define My_DLLEXP 
 #endif
 
+typedef My_DLLEXP  CThostFtdcTraderApi*(*FunCreateFtdcTraderApi)(const char *pszFlowPath);
 typedef My_DLLEXP  CThostFtdcMdApi*(*FunCreateFtdcMdApi)(const char *pszFlowPath, const bool bIsUsingUdp, const bool bIsMulticast);
 
 ctpSave* pCtpSaveObj = 0;
+void* soMd = 0;
+void* soTrader = 0;
+std::unique_ptr<ctpSave> ctpSaveObj;
+QuantMdUser* apiMdUser = 0;
+QuantTraderUser* apiTraderUser = 0;
 
-void onRcvRtnDepthMarketData(struct CThostFtdcDepthMarketDataField* pDepthMarketData) {
-	// 打印行情，字段较多，截取部分
-	std::cout << "=====DepthMarketData=====" << std::endl;
-	std::cout << "TradingDay: " << pDepthMarketData->TradingDay << std::endl;
-	std::cout << "ExchangeID: " << pDepthMarketData->ExchangeID << std::endl;
-	std::cout << "InstrumentID: " << pDepthMarketData->InstrumentID << std::endl;
-	std::cout << "ExchangeInstID: " << pDepthMarketData->ExchangeInstID << std::endl;
-	std::cout << "LastPrice: " << pDepthMarketData->LastPrice << std::endl;
-	std::cout << "Volume: " << pDepthMarketData->Volume << std::endl;
-	std::cout << "UpdateTime: " << pDepthMarketData->UpdateTime << std::endl;
-}
-
-int main() {
+int main(){
 
 	Profile::getInstance()->init("go/conf/config.json");
 	
-	void* soMd = 0;
 
-	CtpApiMdUser* apiMdUser = 0;
+
 
 	do {
 		soMd = so_open("thostmduserapi");
@@ -78,14 +75,90 @@ int main() {
 			break;
 		}
 
-		apiMdUser = (CtpApiMdUser*)ctpMdInit(mdApi);
+		apiMdUser = QuantMdInit(mdApi);
+	} while (false);
+	
 
-		ctpMdSetCallback_RtnDepthMarketData(apiMdUser, (void*)onRcvRtnDepthMarketData);
+	do {
+		soTrader = so_open("thosttraderapi");
+
+		if (!soTrader)
+			break;
+
+		const char*funcName = "CThostFtdcTraderApi::CreateFtdcTraderApi";
+
+#ifdef _WINDOWS
+		funcName = "?CreateFtdcTraderApi@CThostFtdcTraderApi@@SAPEAV1@PEBD@Z";
+#else
+		funcName = "_ZN19CThostFtdcTraderApi19CreateFtdcTraderApiEPKc";
+#endif
+		void* createApi = so_find(soTrader, funcName);
+		if (!createApi) {
+			printf("FindProc %s not exist\n", funcName);
+			break;
+		}
+
+		FunCreateFtdcTraderApi funCreateApi = (FunCreateFtdcTraderApi)createApi;
+
+		CThostFtdcTraderApi * traderApi = 0;
+
+		const char* pszFlowPath = Profile::getInstance()->getStringCache("data.path");
+
+		mkdir_r(pszFlowPath);
+
+		// pszFlowPath = "";
+		traderApi = (*funCreateApi)(pszFlowPath);
+
+		if (!traderApi) {
+			printf("CreateFtdcTraderApi return null\n");
+			break;
+		}
+
+
+		int instrumentsCount = 0;
+		CThostFtdcInstrumentField** ppInstrumentField = pCtpSaveObj->readInstruments(&instrumentsCount);
+		RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(ppInstrumentField, instrumentsCount);
+
+		apiTraderUser = QuantTraderInit(traderApi);
+
+		QuantTraderHandler* traderHandler = apiTraderUser->getResponse();
+		// traderHandler->setSaveDataExchangeCallback([](CThostFtdcExchangeField** p, int n) {
+			// pCtpSaveObj->saveExchanges(p, n);
+		// });
+
+		traderHandler->setSaveDataInstrumentCallback(const std::list<CThostFtdcInstrumentField>& p) {
+			RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(p);
+			pCtpSaveObj->saveInstruments(p);
+		});
+
+		// traderHandler->setSaveDataInstrumentStatusCallback([](CThostFtdcInstrumentStatusField** p, int n) {
+			// pCtpSaveObj->saveInstrumentsStatus(p, n);
+		// });		
 
 	} while (false);
+	
+	if(apiMdUser)
+		QuantMdWait(apiMdUser);	
+
+	if (hqRedis) {
+		hqRedis->stop();
+		delete hqRedis;
+		hqRedis = 0;
+	}
+
+	if (apiTraderUser) {
+		QuantTraderWait(apiTraderUser);
+		delete apiTraderUser;
+		apiTraderUser = 0;
+	}
+
+	if (soTrader) {
+		so_free(soTrader);
+		soTrader = 0;
+	}
 
 	if (apiMdUser) {
-		ctpMdWait(apiMdUser);
+		QuantMdWait(apiMdUser);
 		delete apiMdUser;
 		apiMdUser = 0;
 	}
@@ -98,6 +171,20 @@ int main() {
 	Profile::Destroy();
 
 	return 0;
+}
+
+
+RealtimeQuoteNotifyCallback realtimeQuoteNotifyCallback = 0;
+void onRecvDepthMarketDataField(const char *pDepthMarketData) {	
+	
+	if (!pDepthMarketData || !(*pDepthMarketData) || !realtimeQuoteNotifyCallback)
+		return;
+
+	realtimeQuoteNotifyCallback(pDepthMarketData);
+}
+
+void setRealtimeQuoteNotifyCallback(NotifyStringCallback cb){
+	apiMdUser->setCallback_RtnDepthMarketData((void*)onRecvDepthMarketDataField);
 }
 
 char* ExtProfileGetString(char* key) {

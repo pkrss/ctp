@@ -1,11 +1,9 @@
 #include "ctpSave.h"
 
-#include "../../impl/ctpApiMd.h"
-#include "../../impl/ctpApiTrader.h"
+// #include "../../impl/ctpApiMd.h"
+// #include "../../impl/ctpApiTrader.h"
 
-#include <list>
-
-#include "../../third/jsoncpp/json.hpp"
+#include "third/jsoncpp/json.hpp"
 // for convenience
 using json = nlohmann::json;
 
@@ -142,7 +140,8 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 		for (json::iterator b = j.begin(), e=j.end(); b != e; ++b) {
 			json& r = *j;
 
-			CThostFtdcInstrumentField *item = malloc(sizeof(CThostFtdcInstrumentField));
+			CThostFtdcInstrumentField item2;
+			CThostFtdcInstrumentField* item = &item2;
 			memset(item, 0, sizeof(CThostFtdcInstrumentField));
 
 			strcpy(item->InstrumentID, r["id"]);
@@ -186,14 +185,14 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 	} while (false);
 
 	if(content){
-		free(content);
+		free((void*)content);
 		content = 0;
 	}
 
 	return ret;
 }
 
-void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentField>& instaruments) {
+void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentStatusField>& instaruments) {
 
 	if (!this->saveDataFun || instaruments.empty())
 		return;
