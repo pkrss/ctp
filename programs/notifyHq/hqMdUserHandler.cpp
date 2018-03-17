@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../third/jsoncpp/json.hpp"
 
 HqMdHandler::HqMdHandler(CThostFtdcMdApi *mdapi)
 {
@@ -24,13 +25,13 @@ void HqMdHandler::OnFrontConnected()
     CThostFtdcReqUserLoginField reqUserLoginField;
     memset(&reqUserLoginField, 0, sizeof(reqUserLoginField));
 
-    char *BrokerID = Profile::getInstance()->getStringCache("user.brokerID");
+    const char *BrokerID = Profile::getInstance()->getStringCache("user.brokerID");
     strcpy(reqUserLoginField.BrokerID, BrokerID);
 
-    char *UserID = Profile::getInstance()->getStringCache("user.userID");
+    const char *UserID = Profile::getInstance()->getStringCache("user.userID");
     strcpy(reqUserLoginField.UserID, UserID);
 
-    char *Password = Profile::getInstance()->getStringCache("user.password");
+    const char *Password = Profile::getInstance()->getStringCache("user.password");
     strcpy(reqUserLoginField.Password, Password);
 
     ++requestID;
@@ -102,7 +103,7 @@ void HqMdHandler::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMar
 	if (!cb)
 		return;
 
-    json quote;
+    nlohmann::json quote;
 	quote["id"] = pDepthMarketData->InstrumentID;
 	// quote["name"] = rspRowCols[0]
 	quote["open"] = pDepthMarketData->OpenPrice;
@@ -153,7 +154,7 @@ void HqMdHandler::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMar
 		// quote["updnPricePer"] = nil
 	}
 	
-	json jsonRoot;
+	nlohmann::json jsonRoot;
 	jsonRoot["cat"] = "quote";
 	jsonRoot["oper"] = "realtime";
 	jsonRoot["data"] = quote;

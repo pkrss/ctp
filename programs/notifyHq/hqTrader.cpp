@@ -1,12 +1,12 @@
 #include "hqTrader.h"
 #include "hqTraderUserHandler.h"
-#include "../../utils.h"
+#include "../../profile.h"
 #include <stdio.h>
 #include <string.h>
 
 HqTraderUser* hqTraderInit(CThostFtdcTraderApi *cTraderapi)
 {
-    char *pszFrontAddress = profileGetString("trader.frontAddress");
+    const char *pszFrontAddress = Profile::getInstance()->getStringCache("trader.frontAddress");
 
     HqTraderHandler *spiResponse = new HqTraderHandler(cTraderapi);
 
@@ -17,14 +17,12 @@ HqTraderUser* hqTraderInit(CThostFtdcTraderApi *cTraderapi)
 
 	printf("Start connect Trader Server:%s\n", pszFrontAddress);
 
-    cTraderapi->RegisterFront(pszFrontAddress);
+    cTraderapi->RegisterFront((char*)pszFrontAddress);
 
 	cTraderapi->SubscribePublicTopic(THOST_TERT_RESTART);    // 订阅公共流
 	cTraderapi->SubscribePrivateTopic(THOST_TERT_RESTART);   // 订阅私有流
 
     cTraderapi->Init();
-
-    profileFreeString(pszFrontAddress);
 
     return ret;
 }

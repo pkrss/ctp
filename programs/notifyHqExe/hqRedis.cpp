@@ -7,11 +7,8 @@
 
 #include "../../third/cpp_redis/includes/cpp_redis/cpp_redis"
 
-#include "../../third/jsoncpp/json.hpp"
-using json = nlohmann::json;
 
-
-HqRedis* hqRedis = 0;
+extern HqRedis* hqRedis;
 
 void onRecvDepthMarketDataField(const char *pDepthMarketData) {	
 	if (!pDepthMarketData || !(*pDepthMarketData) || !hqRedis || !hqRedis->apiMdUser)

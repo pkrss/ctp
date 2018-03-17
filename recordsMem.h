@@ -22,10 +22,12 @@ public:
         static RecordsMem m;
         return &m;
     }
-  void resetAll(const DATALIST& p){
+
+    template<typename _InputIterator, typename = std::_RequireInputIter<_InputIterator>>
+  void resetAll(_InputIterator __first, _InputIterator __last){
       m.lock();
       dataList.clear();
-      dataList.assign(p);
+      dataList.assign(__first, __last);
       m.unlock();
   }
 
