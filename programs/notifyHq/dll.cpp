@@ -159,7 +159,8 @@ int my_ctp_init(){
 		}
 
 		auto ppInstrumentField = pCtpSaveObj->readInstruments();
-		RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(ppInstrumentField->begin(), ppInstrumentField->end());
+		if(ppInstrumentField.get())
+			RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(ppInstrumentField->begin(), ppInstrumentField->end());
 
 		apiTraderUser = hqTraderInit(traderApi);
 
