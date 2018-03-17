@@ -7,7 +7,7 @@ MY_CFLAGS = -D_WINDOWS -D_DEBUG -DDEBUG -g -Ithird/cpp_redis/includes/ -Ithird/c
 # release: -O2
 
 # The linker options.
-MY_LIBS   = 
+MY_LIBS   = -lws2_32 -liconv
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall -std=c++17 
