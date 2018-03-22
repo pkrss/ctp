@@ -49,13 +49,12 @@
                 "${workspaceRoot}",
                 "${workspaceRoot}/third/cpp_redis/includes",
                 "${workspaceRoot}/third/cpp_redis/tacopie/includes",                
-                "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
-                "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
-                "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/backward",
-                "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
-                "D:/develop/LLVM/include",
-                "D:/develop/LLVM/x86_64-w64-mingw32/include",
-                "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include-fixed"
+                "D:/develop/msys64/mingw64/include/c++/7.3.0",
+                "D:/develop/msys64/mingw64/include/c++/7.3.0/x86_64-w64-mingw32",
+                "D:/develop/msys64/mingw64/include/c++/7.3.0/backward",
+                "D:/develop/msys64/mingw64/include",
+                "D:/develop/msys64/mingw64/x86_64-w64-mingw32/include",
+                "D:/develop/msys64/usr/include"
             ],
             "defines": [
                 "DEBUG",
@@ -72,13 +71,11 @@
                     "${workspaceRoot}",
                     "${workspaceRoot}/third/cpp_redis/includes", 
                     "${workspaceRoot}/third/cpp_redis/tacopie/includes",                   
-                    "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
-                    "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
-                    "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/backward",
-                    "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include",
-                    "D:/develop/LLVM/include",
-                    "D:/develop/LLVM/x86_64-w64-mingw32/include",
-                    "D:/develop/LLVM/lib/gcc/x86_64-w64-mingw32/7.2.0/include-fixed"
+                    "D:/develop/msys64/mingw64/include/c++/7.3.0",
+                    "D:/develop/msys64/mingw64/include/c++/7.3.0/x86_64-w64-mingw32",
+                    "D:/develop/msys64/mingw64/include/c++/7.3.0/backward",
+                    "D:/develop/msys64/mingw64/include",
+                    "D:/develop/msys64/usr/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""

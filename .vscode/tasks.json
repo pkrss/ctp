@@ -45,7 +45,7 @@
             }
         },{
             "label": "CompileNotifyHq",
-            "command": "mingw32-make -f programs/notifyHq/Makefile_WinDebug && mingw32-make -f programs/notifyHqExe/Makefile_WinDebug",
+            "command": "make -f programs/notifyHq/Makefile_WinDebug && make -f programs/notifyHqExe/Makefile_WinDebug",
             "args": [],
             "type": "shell",
             "group": {
