@@ -2,6 +2,7 @@
 #define __MY_INSTRUMENTS_OP_H__
 
 #include <map>
+#include <string>
 #include <shared_mutex>
 
 class CInstrumentsOp{

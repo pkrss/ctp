@@ -3,17 +3,17 @@
 // mkdir
 #include <direct.h>  
 
-char *profileGetString(const char *key)
-{
-  return ExtProfileGetString((char*)key);
-}
+// char *profileGetString(const char *key)
+// {
+//   return ExtProfileGetString((char*)key);
+// }
 
-void profileFreeString(void *p)
-{
-  if (!p)
-    return;
-  free(p);
-}
+// void profileFreeString(void *p)
+// {
+//   if (!p)
+//     return;
+//   free(p);
+// }
 
 std::list<std::string> SplitString(const std::string &s, const std::string &c)
 {

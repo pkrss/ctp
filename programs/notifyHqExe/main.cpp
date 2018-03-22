@@ -1,7 +1,6 @@
 #include "hqRedis.h"
 #include "../notifyHq/dll.h"
-
-typedef My_DLLEXP  int(*DllFun)();
+#include "../../profile.h"
 
 extern HqMdUser* apiMdUser;
 HqRedis *hqRedis = 0;
@@ -23,6 +22,13 @@ int main() {
 		my_ctp_loop();
 	} while (false);
 
+
+	if (hqRedis) {
+		hqRedis->stop();
+		delete hqRedis;
+		hqRedis = 0;
+	}
+	
 	my_ctp_uninit();
 
     return 0;

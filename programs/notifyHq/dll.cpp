@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string.h> // strdup
 
-#include "fileSave.h"
+#include "../../fileSave.h"
 #include "../../recordsMem.h"
 #include "../../ctpSave.h"
 
@@ -50,37 +50,37 @@ int my_ctp_init(){
 	ctpSaveObj.reset(new ctpSave());
 	pCtpSaveObj = ctpSaveObj.get();
 	pCtpSaveObj->SetSaveDataFun([](const char* name, long id, const char* content) {
-		if(!name || !*name || !content)
+		if(!name || !*name || !(*content))
 			return;
 
 		// PgSql::getInstance()->saveData(name, id, content);
 		std::string path = Profile::getInstance()->getStringCache("data.save", "../data/save");
 		char s[32];
-		ltoa(id, a, 10);
-		path += "/" + name;
+		ltoa(id, s, 10);
+		path += std::string() + "/" + name;
 
 		mkdir_r(path.c_str());
 
-		path += "/" + s + ".json";
+		path += std::string() + "/" + s + ".json";
 
-		myFileWrite(path, content);
+		myFileWrite(path.c_str(), content);
 	});
 
-	pCtpSaveObj->SetReadDataFun(const char *[](const char *name, long id) {
-		if(!name || !*name || !content)
-			return;
+	pCtpSaveObj->SetReadDataFun([](const char *name, long id) -> const char* {
+		if(!name || !*name)
+			return 0;
 
 		// PgSql::getInstance()->saveData(name, id, content);
 		std::string path = Profile::getInstance()->getStringCache("data.save", "../data/save");
 		char s[32];
-		ltoa(id, a, 10);
-		path += "/" + name;
+		ltoa(id, s, 10);
+		path += std::string() + "/" + name;
 
 		mkdir_r(path.c_str());
 
-		path += "/" + s + ".json";
+		path += std::string() + "/" + s + ".json";
 
-		return myFileRead(path);
+		return myFileRead(path.c_str());
 	});
 
 	do {
@@ -158,10 +158,9 @@ int my_ctp_init(){
 			break;
 		}
 
-
-		int instrumentsCount = 0;
-		CThostFtdcInstrumentField** ppInstrumentField = pCtpSaveObj->readInstruments(&instrumentsCount);
-		RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(ppInstrumentField, instrumentsCount);
+		auto ppInstrumentField = pCtpSaveObj->readInstruments();
+		if(ppInstrumentField.get())
+			RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(ppInstrumentField->begin(), ppInstrumentField->end());
 
 		apiTraderUser = hqTraderInit(traderApi);
 
@@ -170,8 +169,8 @@ int my_ctp_init(){
 			// pCtpSaveObj->saveExchanges(p, n);
 		// });
 
-		traderHandler->setSaveDataInstrumentCallback(const std::list<CThostFtdcInstrumentField>& p) {
-			RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(p);
+		traderHandler->setSaveDataInstrumentCallback([](const std::list<CThostFtdcInstrumentField>& p) {
+			RecordsMem<CThostFtdcInstrumentField>::getInstance()->resetAll(p.begin(),p.end());
 			pCtpSaveObj->saveInstruments(p);
 		});
 
@@ -192,11 +191,6 @@ int my_ctp_loop(){
 
 int my_ctp_uninit(){
 
-	if (hqRedis) {
-		hqRedis->stop();
-		delete hqRedis;
-		hqRedis = 0;
-	}
 
 	if (apiTraderUser) {
 		hqTraderWait(apiTraderUser);
@@ -226,8 +220,8 @@ int my_ctp_uninit(){
 }
 
 
-RealtimeQuoteNotifyCallback realtimeQuoteNotifyCallback = 0;
-void onRecvDepthMarketDataField(const char *pDepthMarketData) {	
+NotifyStringCallback realtimeQuoteNotifyCallback = 0;
+void onDllRecvDepthMarketDataField(const char *pDepthMarketData) {	
 	
 	if (!pDepthMarketData || !(*pDepthMarketData) || !realtimeQuoteNotifyCallback)
 		return;
@@ -236,7 +230,8 @@ void onRecvDepthMarketDataField(const char *pDepthMarketData) {
 }
 
 void setRealtimeQuoteNotifyCallback(NotifyStringCallback cb){
-	apiMdUser->setCallback_RtnDepthMarketData((void*)onRecvDepthMarketDataField);
+	realtimeQuoteNotifyCallback = cb;
+	apiMdUser->setCallback_RtnDepthMarketData((void*)onDllRecvDepthMarketDataField);
 }
 
 char* ExtProfileGetString(char* key) {

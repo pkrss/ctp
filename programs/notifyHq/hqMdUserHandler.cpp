@@ -1,10 +1,11 @@
 #include "HqMdUserHandler.h"
 #include "HqMdUser.h"
 #include "hqMd.h"
-#include "../../utils.h"
+#include "../../profile.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../third/jsoncpp/json.hpp"
 
 HqMdHandler::HqMdHandler(CThostFtdcMdApi *mdapi)
 {
@@ -24,22 +25,19 @@ void HqMdHandler::OnFrontConnected()
     CThostFtdcReqUserLoginField reqUserLoginField;
     memset(&reqUserLoginField, 0, sizeof(reqUserLoginField));
 
-    char *BrokerID = profileGetString("user.brokerID");
+    const char *BrokerID = Profile::getInstance()->getStringCache("user.brokerID");
     strcpy(reqUserLoginField.BrokerID, BrokerID);
 
-    char *UserID = profileGetString("user.userID");
+    const char *UserID = Profile::getInstance()->getStringCache("user.userID");
     strcpy(reqUserLoginField.UserID, UserID);
 
-    char *Password = profileGetString("user.password");
+    const char *Password = Profile::getInstance()->getStringCache("user.password");
     strcpy(reqUserLoginField.Password, Password);
 
     ++requestID;
     mdapi->ReqUserLogin(&reqUserLoginField, requestID);
     printf("CThostFtdcMdApi_ReqUserLogin BrokerID=%s, UserID=%s\n", BrokerID, UserID);
 
-    free(BrokerID);
-    free(UserID);
-    free(Password);
 }
 
 ///当客户端与交易后台通信连接断开时，该方法被调用。当发生这个情况后，API会自动重新连接，客户端可不做处理。
@@ -105,7 +103,7 @@ void HqMdHandler::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMar
 	if (!cb)
 		return;
 
-    json quote;
+    nlohmann::json quote;
 	quote["id"] = pDepthMarketData->InstrumentID;
 	// quote["name"] = rspRowCols[0]
 	quote["open"] = pDepthMarketData->OpenPrice;
@@ -156,7 +154,7 @@ void HqMdHandler::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMar
 		// quote["updnPricePer"] = nil
 	}
 	
-	json jsonRoot;
+	nlohmann::json jsonRoot;
 	jsonRoot["cat"] = "quote";
 	jsonRoot["oper"] = "realtime";
 	jsonRoot["data"] = quote;

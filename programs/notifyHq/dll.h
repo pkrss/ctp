@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 int my_ctp_init();
-int my_ctp_uninit();
+int my_ctp_loop();
 int my_ctp_uninit();
 
 const char* getExchangesJsonStr();
