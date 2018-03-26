@@ -7,13 +7,13 @@ MY_CFLAGS = -D_WINDOWS -fpic -shared -D_DEBUG -DDEBUG -g
 # release: -O2
 
 # The linker options.
-MY_LIBS   = 
+MY_LIBS   = -L. -liconv
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall -std=c++17 
 
 # The options used in linking as well as in any direct use of ld.
-LDFLAGS   = -L. -liconv
+LDFLAGS   =
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.

@@ -5,7 +5,9 @@
 
 #include <list>
 
-#include "third/jsoncpp/json.hpp"
+#include "../../third/jsoncpp/json.hpp"
+#include "../../character.h"
+
 // for convenience
 using json = nlohmann::json;
 
@@ -73,7 +75,7 @@ void ctpSave::saveInstruments(const std::list<CThostFtdcInstrumentField>& instar
 		{
 			const CThostFtdcInstrumentField* item = &(*b);
 
-			char* name = ExtGbkToUtf8(item->InstrumentName);
+			char* name = (char*)gbk_to_utf8(item->InstrumentName);
 
 			json r = json::object();
 			r["id"] = item->InstrumentID;
@@ -119,14 +121,34 @@ void ctpSave::saveInstruments(const std::list<CThostFtdcInstrumentField>& instar
 	// }
 }
 
+template<class _Ty>
+void json_2_v(_Ty& s, const json& j){
+	*(&s) = j;
+}
+void json_2_s(char* s, const json& j){ strcpy(s, ((std::string)j).c_str()); }
+template<>
+void json_2_v(TThostFtdcTraderIDType& s, const json& j){ json_2_s((char*)&s[0], j); }
+template<>
+void json_2_v(TThostFtdcInvestorIDType& s, const json& j){ json_2_s((char*)&s[0], j); }
+template<>
+void json_2_v(TThostFtdcBrokerIDType& s, const json& j){ json_2_s((char*)&s[0], j); }
+template<>
+void json_2_v(TThostFtdcBrokerAbbrType& s, const json& j){ json_2_s((char*)&s[0], j); }
+template<>
+void json_2_v(TThostFtdcExchangeInstIDType& s, const json& j){ json_2_s((char*)&s[0], j); }
+template<>
+void json_2_v(float& s, const json& j){ *(&s) = j; }
+void json_2_v(double& s, const json& j){ *(&s) = j; }
+void json_2_v(long& s, const json& j){ *(&s) = j; }
+void json_2_v(unsigned char& s, const json& j){ *(&s) = (unsigned char)j; }
+void json_2_v(char& s, const json& j){ *(&s) = (char)(unsigned char)j; }
+
 std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments(){
 	std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ret;
-	if (!this->readDataFun || !outCount)
+	if (!this->readDataFun)
 		return ret;
 
 	const char *content = 0;
-
-	int count = 0;
 
 	do{
 		content = this->readDataFun("futuresInstruments", 0);
@@ -137,63 +159,64 @@ std::shared_ptr<std::vector<CThostFtdcInstrumentField>> ctpSave::readInstruments
 		json j = json::parse(content);
 
 		ret.reset(new std::vector<CThostFtdcInstrumentField>());
-		ret->reserve(j.count());
+		ret->reserve(j.size());
 
+		CThostFtdcInstrumentField item2;
 		for (json::iterator b = j.begin(), e=j.end(); b != e; ++b) {
-			json& r = *j;
+			json& r = *b;
 
-			CThostFtdcInstrumentField *item = malloc(sizeof(CThostFtdcInstrumentField));
+			CThostFtdcInstrumentField *item = &item2;
 			memset(item, 0, sizeof(CThostFtdcInstrumentField));
 
-			strcpy(item->InstrumentID, r["id"]);
+			json_2_v(item->InstrumentID, r["id"]);
 
-			char* name = utf8_to_gbk(r["name"]);
-			strcpy(item->InstrumentName, name);
-			strcpy(item->ExchangeID, r["exchangeID"]);
-			strcpy(item->ProductID, r["productID"]);
-			item->ProductClass = r["productClass"];
-			item->DeliveryYear = r["deliveryYear"];
-			item->DeliveryMonth = r["deliveryMonth"];
-			item->MaxMarketOrderVolume = r["maxMarketOrderVolume"];
-			item->MinMarketOrderVolume = r["minMarketOrderVolume"];
-			item->MaxLimitOrderVolume = r["maxLimitOrderVolume"];
-			item->MinLimitOrderVolume = r["minLimitOrderVolume"];
-			item->VolumeMultiple = r["volumeMultiple"];
-			item->PriceTick = r["priceTick"];
-			strcpy(item->CreateDate, r["createDate"]);
-			strcpy(item->OpenDate, r["openDate"]);
-			strcpy(item->ExpireDate, r["expireDate"]);
-			strcpy(item->StartDelivDate, r["startDelivDate"]);
-			strcpy(item->EndDelivDate, r["endDelivDate"]);
-			item->InstLifePhase = r["instLifePhase"];
-			item->IsTrading = r["isTrading"];
-			item->PositionType = r["positionType"];
-			item->PositionDateType = r["positionDateType"];
-			item->LongMarginRatio = r["longMarginRatio"];
-			item->ShortMarginRatio = r["shortMarginRatio"];
-			item->MaxMarginSideAlgorithm = r["maxMarginSideAlgorithm"];
-			item->UnderlyingInstrID = r["underlyingInstrID"];
-			item->StrikePrice = r["strikePrice"];
-			item->OptionsType = r["optionsType"];
-			item->UnderlyingMultiple = r["underlyingMultiple"];
-			item->CombinationType = r["combinationType"];
+			char* name = (char*)utf8_to_gbk(((std::string)r["name"]).c_str());
+			json_2_v(item->InstrumentName, name);
+			json_2_v(item->ExchangeID, r["exchangeID"]);
+			json_2_v(item->ProductID, r["productID"]);
+			json_2_v(item->ProductClass, r["productClass"]);
+			json_2_v(item->DeliveryYear, r["deliveryYear"]);
+			json_2_v(item->DeliveryMonth, r["deliveryMonth"]);
+			json_2_v(item->MaxMarketOrderVolume, r["maxMarketOrderVolume"]);
+			json_2_v(item->MinMarketOrderVolume, r["minMarketOrderVolume"]);
+			json_2_v(item->MaxLimitOrderVolume, r["maxLimitOrderVolume"]);
+			json_2_v(item->MinLimitOrderVolume, r["minLimitOrderVolume"]);
+			json_2_v(item->VolumeMultiple, r["volumeMultiple"]);
+			json_2_v(item->PriceTick, r["priceTick"]);
+			json_2_v(item->CreateDate, r["createDate"]);
+			json_2_v(item->OpenDate, r["openDate"]);
+			json_2_v(item->ExpireDate, r["expireDate"]);
+			json_2_v(item->StartDelivDate, r["startDelivDate"]);
+			json_2_v(item->EndDelivDate, r["endDelivDate"]);
+			json_2_v(item->InstLifePhase, r["instLifePhase"]);
+			json_2_v(item->IsTrading, r["isTrading"]);
+			json_2_v(item->PositionType, r["positionType"]);
+			json_2_v(item->PositionDateType, r["positionDateType"]);
+			json_2_v(item->LongMarginRatio, r["longMarginRatio"]);
+			json_2_v(item->ShortMarginRatio, r["shortMarginRatio"]);
+			json_2_v(item->MaxMarginSideAlgorithm, r["maxMarginSideAlgorithm"]);
+			json_2_v(item->UnderlyingInstrID, r["underlyingInstrID"]);
+			json_2_v(item->StrikePrice, r["strikePrice"]);
+			json_2_v(item->OptionsType, r["optionsType"]);
+			json_2_v(item->UnderlyingMultiple, r["underlyingMultiple"]);
+			json_2_v(item->CombinationType, r["combinationType"]);
 
 			free(name);
 
-			ret->push_back(item);
+			ret->push_back(item2);
 		}
 
 	} while (false);
 
 	if(content){
-		free(content);
+		free((void*)content);
 		content = 0;
 	}
 
 	return ret;
 }
 
-void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentField>& instaruments) {
+void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentStatusField>& instaruments) {
 
 	if (!this->saveDataFun || instaruments.empty())
 		return;
@@ -203,16 +226,16 @@ void ctpSave::saveInstrumentsStatus(const std::list<CThostFtdcInstrumentField>& 
 
 	for (auto b = instaruments.begin(), e = instaruments.end(); b != e;++b)
 	{
-		CThostFtdcInstrumentStatusField* item = &(*b);
+		CThostFtdcInstrumentStatusField* item = (CThostFtdcInstrumentStatusField*)&(*b);
 
 		std::string exchangeId = item->ExchangeID;
-		E2IMAP::iterator b = exchange2Instruments.find(exchangeId);
-		if (b == exchange2Instruments.end()) {
+		E2IMAP::iterator b2 = exchange2Instruments.find(exchangeId);
+		if (b2 == exchange2Instruments.end()) {
 			exchange2Instruments.insert(std::make_pair(exchangeId, std::list<CThostFtdcInstrumentStatusField*>()));
-			b = exchange2Instruments.find(item->ExchangeID);
+			b2 = exchange2Instruments.find(item->ExchangeID);
 		}
 
-		b->second.push_back(item);
+		b2->second.push_back(item);
 	}
 
 	for (E2IMAP::const_iterator b = exchange2Instruments.begin(), e = exchange2Instruments.end(); b != e; ++b) {

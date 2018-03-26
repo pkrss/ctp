@@ -1,7 +1,7 @@
 #ifndef __MY_CTP_SAVE__H__
 #define __MY_CTP_SAVE__H__
 
-#include "third/ctp/ThostFtdcUserApiStruct.h"
+#include "../../third/ctp/ThostFtdcUserApiStruct.h"
 #include <list>
 #include <vector>
 #include <memory>

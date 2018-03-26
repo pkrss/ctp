@@ -14,7 +14,7 @@
 
 #include "../../fileSave.h"
 #include "../../recordsMem.h"
-#include "../../ctpSave.h"
+#include "ctpSave.h"
 
 #if defined(_MSC_VER)
 #define My_DLLEXP __declspec(dllimport)
