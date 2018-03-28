@@ -38,3 +38,4 @@ GRTAGS
 GTAGS
 /refOther/CTPTest/CTPtest/*.csv
 /go/conf/config.json
+/conf/config.json

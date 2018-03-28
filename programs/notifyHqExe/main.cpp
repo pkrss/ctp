@@ -1,5 +1,5 @@
 #include "hqRedis.h"
-#include "../notifyHq/dll.h"
+#include "../notifyHq/myctpdll.h"
 #include "../../profile.h"
 
 extern HqMdUser* apiMdUser;

@@ -1,13 +1,13 @@
 
 # The pre-processor and compiler options. -Ithird/ctp/ 
-MY_CFLAGS = -D_WINDOWS -fpic -shared -D_DEBUG -DDEBUG -g
+MY_CFLAGS = -D_WINDOWS -fpic -shared -D_DEBUG -DDEBUG -g -fvisibility=hidden -fvisibility-inlines-hidden -DBUILDING_MYCTP_EXPORT=1 -Ithird/cpp_redis/includes/ -Ithird/cpp_redis/tacopie/includes/
 
 # for dll: -fpic -shared 
 
 # release: -O2
 
 # The linker options.
-MY_LIBS   = -L. -liconv
+MY_LIBS   = -L. -liconv -lws2_32
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall -std=c++17 
@@ -17,7 +17,7 @@ LDFLAGS   =
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
-SRCDIRS   = . programs/notfyHq
+SRCDIRS   = . programs/notifyHq
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.

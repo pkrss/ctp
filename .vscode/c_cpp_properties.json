@@ -63,6 +63,7 @@
                 "UNICODE",
                 "_UNICODE",
                 "_WINDOWS",
+                "BUILDING_MYCTP_EXPORT=1",
                 "__GNUC__=7",
                 "__cdecl=__attribute__((__cdecl__))"
             ],
