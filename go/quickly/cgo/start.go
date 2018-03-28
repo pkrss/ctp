@@ -2,6 +2,15 @@ package cgo
 
 /*
 #cgo CXXFLAGS: -std=c++14
+
+typedef void(*FnCallback)(const char*)
+typedef void(*FnSetCallback)(FnCallback cb)
+
+extern void GoNotifyStringCallback(const char *);
+void callCtpCb(void* p,void* p2){
+	FnSetCallback fn = (FnSetCallback)p;
+	fn((FnCallback)p2);
+}
 */
 import "C"
 import (
@@ -28,7 +37,10 @@ func ExtGbkToUtf8(gbkStr *C.char) *C.char {
 	return C.CString(s)
 }
 
-var apiMd unsafe.Pointer
+//export GoNotifyStringCallback
+func GoNotifyStringCallback(s *C.char) {
+
+}
 
 func Start() bool {
 	// pszFlowPath := conf.GetString("data.path")
@@ -52,6 +64,15 @@ func Start() bool {
 	// 	log.Printf("CallProc %s error: %s\n", funcName, err.Error())
 	// 	return false
 	// }
+
+	funcName = "setRealtimeQuoteNotifyCallback"
+	fn, err = handle.FindProc(funcName)
+	if err != nil {
+		log.Printf("FindProc %s not exist: %s\n", funcName, err.Error())
+		return false
+	}
+	C.callCtpCb(unsafe.Pointer(fn), C.GoNotifyStringCallback)
+	// _, _, _ = fn.Call(uintptr(GoNotifyStringCallback))
 
 	funcName = "my_ctp_loop"
 	fn, err = handle.FindProc(funcName)
